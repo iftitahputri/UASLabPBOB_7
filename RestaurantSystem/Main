@@ -1,0 +1,513 @@
+import java.io.*;
+import java.util.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class Main {
+    private List<Menu> daftarMenu;
+    private List<Pesanan> daftarPesanan;
+    private List<Transaksi> daftarTransaksi;
+    private List<User> daftarUser;
+    private Scanner scanner;
+
+    // Ganti file menu menjadi CSV
+    private static final String FILE_MENU = "menu.csv";
+    private static final String FILE_PESANAN = "pesanan.txt";
+    private static final String FILE_TRANSAKSI = "transaksi.txt";
+    private static final String FILE_USER = "user.txt";
+
+    public Main() {
+        this.daftarMenu = new ArrayList<>();
+        this.daftarPesanan = new ArrayList<>();
+        this.daftarTransaksi = new ArrayList<>();
+        this.daftarUser = new ArrayList<>();
+        this.scanner = new Scanner(System.in);
+        loadData();
+    }
+
+    private void loadData() {
+        loadMenuFromCSV(); // Pakai CSV 
+        loadUser();
+        loadPesanan();
+        loadTransaksi();
+    }
+
+    // Baca CSV
+    private void loadMenuFromCSV() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_MENU))) {
+            String line;
+            boolean isFirstLine = true;
+
+            while ((line = reader.readLine()) != null) {
+                // Skip header
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue;
+                }
+
+                // Split by comma 
+                String[] data = line.split(",");
+                if (data.length >= 5) {
+                    String id = data[0].trim();
+                    String nama = data[1].trim();
+                    double harga = Double.parseDouble(data[2].trim());
+                    String kategori = data[3].trim();
+                    boolean tersedia = Boolean.parseBoolean(data[4].trim());
+
+                    daftarMenu.add(new Menu(id, nama, harga, kategori, tersedia));
+                }
+            }
+            System.out.println("Menu loaded from CSV: " + daftarMenu.size() + " items");
+
+        } catch (IOException e) {
+            System.out.println("File menu.csv tidak ditemukan, membuat file default...");
+            createDefaultCSVMenu();
+        } catch (NumberFormatException e) {
+            System.out.println("Error format angka di file CSV");
+        }
+    }
+
+    // Method untuk buat file CSV default
+    private void createDefaultCSVMenu() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_MENU))) {
+            // Header CSV
+            writer.println("ID,Nama,Harga,Kategori,Tersedia");
+
+            // Data default
+            String[][] defaultMenu = {
+                    { "M001", "Nasi Goreng", "25000", "MAKANAN", "true" },
+                    { "M002", "Mie Goreng", "20000", "MAKANAN", "true" },
+                    { "M003", "Ayam Goreng", "18000", "MAKANAN", "true" },
+                    { "M004", "Es Teh", "5000", "MINUMAN", "true" },
+                    { "M005", "Jus Jeruk", "8000", "MINUMAN", "true" },
+                    { "M006", "Gado-gado", "15000", "MAKANAN", "true" },
+                    { "M007", "Sate Ayam", "22000", "MAKANAN", "true" },
+                    { "M008", "Es Jeruk", "7000", "MINUMAN", "true" }
+            };
+
+            for (String[] menu : defaultMenu) {
+                writer.println(String.join(",", menu));
+            }
+
+            // Load data yang baru dibuat
+            loadMenuFromCSV();
+
+        } catch (IOException e) {
+            System.out.println("Error membuat file menu.csv: " + e.getMessage());
+        }
+    }
+
+    // Simpan menu
+    private void saveMenuToCSV() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_MENU))) {
+            // Tulis header
+            writer.println("ID,Nama,Harga,Kategori,Tersedia");
+
+            // Tulis data menu
+            for (Menu menu : daftarMenu) {
+                writer.println(menu.toCSVString());
+            }
+        } catch (IOException e) {
+            System.out.println("Error menyimpan menu ke CSV: " + e.getMessage());
+        }
+    }
+
+    // Cek user atau buat default
+    private void loadUser() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_USER))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                daftarUser.add(User.fromString(line));
+            }
+        } catch (IOException e) {
+            createDefaultUser();
+        }
+    }
+
+    private void loadPesanan() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PESANAN))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                daftarPesanan.add(Pesanan.fromString(line, daftarMenu));
+            }
+        } catch (IOException e) {
+            // File tidak ada, tidak masalah
+        }
+    }
+
+    private void loadTransaksi() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_TRANSAKSI))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                daftarTransaksi.add(Transaksi.fromString(line));
+            }
+        } catch (IOException e) {
+            // File tidak ada, tidak masalah
+        }
+    }
+
+    private void createDefaultUser() {
+        daftarUser.add(new User("koki", "koki123", "KOKI"));
+        daftarUser.add(new User("pelayan", "pelayan123", "PELAYAN"));
+        daftarUser.add(new User("kasir", "kasir123", "KASIR"));
+        saveUser();
+    }
+
+    private void saveUser() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_USER))) {
+            for (User user : daftarUser) {
+                writer.println(user.toString());
+            }
+        } catch (IOException e) {
+            System.out.println("Error menyimpan user");
+        }
+    }
+
+    // === Pesanan n Transaksi ===
+    private void savePesanan() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_PESANAN))) {
+            for (Pesanan pesanan : daftarPesanan) {
+                writer.println(pesanan.toString());
+            }
+        } catch (IOException e) {
+            System.out.println("Error menyimpan pesanan");
+        }
+    }
+
+    private void saveTransaksi() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_TRANSAKSI))) {
+            for (Transaksi transaksi : daftarTransaksi) {
+                writer.println(transaksi.toString());
+            }
+        } catch (IOException e) {
+            System.out.println("Error menyimpan transaksi");
+        }
+    }
+
+    // Method tampilkan menu ribet euy
+    private void tampilkanMenu() {
+        System.out.println("\n=== DAFTAR MENU ===");
+        System.out.printf("%-5s %-20s %-10s %-10s %s\n", "ID", "Nama", "Harga", "Kategori", "Tersedia");
+        for (Menu menu : daftarMenu) {
+            System.out.printf("%-5s %-20s %-10.0f %-10s %s\n",
+                    menu.getId(), menu.getNama(), menu.getHarga(),
+                    menu.getKategori(), menu.isTersedia() ? "Ya" : "Tidak");
+        }
+    }
+
+    // ============================ Mulai ===========================================
+
+    public void mulai() {
+        while (true) {
+            System.out.println("\n=== SISTEM RESTORAN ===");
+            System.out.println("1. User (Pelanggan)");
+            System.out.println("2. Pekerja (Staff)");
+            System.out.println("0. Keluar");
+            System.out.print("Pilih: ");
+
+            int pilihan = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (pilihan) {
+                case 1:
+                    menuUser();
+                    break;
+                case 2:
+                    menuPekerja();
+                    break;
+                case 0:
+                    System.out.println("Terima kasih!");
+                    return;
+                default:
+                    System.out.println("Pilihan tidak valid");
+            }
+        }
+    }
+
+    // ================== pelanggan ============================
+    private void menuUser() {
+        System.out.print("\nMasukkan Nomor Meja: ");
+        String nomorMeja = scanner.nextLine();
+
+        if (nomorMeja.trim().isEmpty()) {
+            System.out.println("Nomor meja harus diisi");
+            return;
+        }
+
+        System.out.println("Selamat datang di Meja " + nomorMeja);
+
+        while (true) {
+            System.out.println("\n=== MENU PELANGGAN ===");
+            System.out.println("1. Lihat Menu");
+            System.out.println("2. Buat Pesanan");
+            System.out.println("3. Lihat Status Pesanan");
+            System.out.println("0. Kembali");
+            System.out.print("Pilih: ");
+
+            int pilihan = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (pilihan) {
+                case 1:
+                    tampilkanMenu();
+                    break;
+                case 2:
+                    buatPesanan(nomorMeja);
+                    break;
+                case 3:
+                    lihatStatusPesanan(nomorMeja);
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Pilihan tidak valid");
+            }
+        }
+    }
+
+    private void buatPesanan(String nomorMeja) {
+        String idPesanan = "P" + System.currentTimeMillis();
+        String tanggal = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+        Pesanan pesanan = new Pesanan(idPesanan, "MEJA_" + nomorMeja, tanggal);
+
+        while (true) {
+            tampilkanMenu();
+            System.out.print("Masukkan ID Menu (atau 0 untuk selesai): ");
+            String idMenu = scanner.nextLine();
+
+            if (idMenu.equals("0"))
+                break;
+
+            Menu menu = cariMenu(idMenu);
+            if (menu == null || !menu.isTersedia()) {
+                System.out.println("Menu tidak tersedia");
+                continue;
+            }
+
+            System.out.print("Jumlah: ");
+            int jumlah = scanner.nextInt();
+            scanner.nextLine();
+
+            pesanan.tambahItem(menu, jumlah);
+            System.out.println("Menu ditambahkan");
+        }
+
+        if (!pesanan.getItems().isEmpty()) {
+            daftarPesanan.add(pesanan);
+            savePesanan();
+            System.out.println("Pesanan berhasil dibuat. ID: " + idPesanan);
+        }
+    }
+
+    private Menu cariMenu(String id) {
+        for (Menu menu : daftarMenu) {
+            if (menu.getId().equals(id)) {
+                return menu;
+            }
+        }
+        return null;
+    }
+
+    private void lihatStatusPesanan(String nomorMeja) {
+        System.out.println("\n=== STATUS PESANAN ===");
+        for (Pesanan pesanan : daftarPesanan) {
+            if (pesanan.getIdPelanggan().equals("MEJA_" + nomorMeja)) {
+                System.out.println("ID: " + pesanan.getIdPesanan());
+                System.out.println("Status: " + pesanan.getStatus());
+                System.out.println("Total: Rp " + pesanan.getTotalHarga());
+            }
+        }
+    }
+
+    // ================================ Pekerja ===============================
+    private void menuPekerja() {
+        while (true) {
+            System.out.println("\n=== MENU PEKERJA ===");
+            System.out.println("1. Koki");
+            System.out.println("2. Pelayan");
+            System.out.println("3. Kasir");
+            System.out.println("4. Daftar");
+            System.out.println("0. Kembali");
+            System.out.print("Pilih: ");
+
+            int pilihan = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (pilihan) {
+                case 1:
+                    loginKoki();
+                    break;
+                case 2:
+                    loginPelayan();
+                    break;
+                case 3:
+                    loginKasir();
+                    break;
+                case 4:
+                    daftarUser();
+                    break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Pilihan tidak valid");
+            }
+        }
+    }
+
+    private void loginKoki() {
+        if (login("koki")) {
+            menuKoki();
+        } else {
+            System.out.println("Login gagal");
+        }
+    }
+
+    private void loginPelayan() {
+        if (login("pelayan")) {
+            menuPelayan();
+        } else {
+            System.out.println("Login gagal");
+        }
+    }
+
+    private void loginKasir() {
+        if (login("kasir")) {
+            menuKasir();
+        } else {
+            System.out.println("Login gagal");
+        }
+    }
+
+    private boolean login(String role) {
+        System.out.print("Username: ");
+        String username = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+
+        for (User user : daftarUser) {
+            if (user.getUsername().equals(username) &&
+                    user.getPassword().equals(password) &&
+                    user.getRole().equals(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void daftarUser() {
+        System.out.println("\n=== DAFTAR USER BARU ===");
+        System.out.print("Username: ");
+        String username = scanner.nextLine();
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+        System.out.print("Role (koki/pelayan/kasir): ");
+        String role = scanner.nextLine();
+
+        daftarUser.add(new User(username, password, role));
+        saveUser();
+        System.out.println("User berhasil didaftarkan");
+    }
+
+    private void menuKoki() {
+        System.out.println("\n=== MENU KOKI ===");
+
+        // Tampilkan pesanan yang perlu dimasak
+        for (Pesanan pesanan : daftarPesanan) {
+            if (pesanan.getStatus().equals("DIPESAN")) {
+                System.out.println("Pesanan " + pesanan.getIdPesanan() + " perlu dimasak");
+
+                // Update status ke DIMASAK
+                pesanan.setStatus("DIMASAK");
+                savePesanan();
+            }
+        }
+
+        // Tampilkan pesanan yang sedang dimasak
+        System.out.println("\nPesanan sedang dimasak:");
+        for (Pesanan pesanan : daftarPesanan) {
+            if (pesanan.getStatus().equals("DIMASAK")) {
+                System.out.println("ID: " + pesanan.getIdPesanan());
+
+                // Update status ke SIAP
+                System.out.print("Update status ke SIAP? (y/n): ");
+                String konfirmasi = scanner.nextLine();
+                if (konfirmasi.equalsIgnoreCase("y")) {
+                    pesanan.setStatus("SIAP");
+                    savePesanan();
+                    System.out.println("Status diupdate");
+                }
+            }
+        }
+    }
+
+    private void menuPelayan() {
+        System.out.println("\n=== MENU PELAYAN ===");
+
+        // Lihat semua pesanan
+        for (Pesanan pesanan : daftarPesanan) {
+            System.out.println("ID: " + pesanan.getIdPesanan());
+            System.out.println("Meja: " + pesanan.getIdPelanggan());
+            System.out.println("Status: " + pesanan.getStatus());
+            System.out.println("------");
+        }
+
+        // Update status pesanan
+        System.out.print("Masukkan ID Pesanan untuk update status: ");
+        String idPesanan = scanner.nextLine();
+
+        for (Pesanan pesanan : daftarPesanan) {
+            if (pesanan.getIdPesanan().equals(idPesanan)) {
+                System.out.println("Status saat ini: " + pesanan.getStatus());
+                System.out.print("Status baru (DIPESAN/DIMASAK/SIAP/SELESAI): ");
+                String statusBaru = scanner.nextLine();
+                pesanan.setStatus(statusBaru);
+                savePesanan();
+                System.out.println("Status diupdate");
+                return;
+            }
+        }
+        System.out.println("Pesanan tidak ditemukan");
+    }
+
+    private void menuKasir() {
+        System.out.println("\n=== MENU KASIR ===");
+
+        // Tampilkan pesanan siap bayar
+        System.out.println("Pesanan siap bayar:");
+        for (Pesanan pesanan : daftarPesanan) {
+            if (pesanan.getStatus().equals("SIAP")) {
+                System.out.println("ID: " + pesanan.getIdPesanan() + " - Total: Rp " + pesanan.getTotalHarga());
+            }
+        }
+
+        // Proses pembayaran
+        System.out.print("Masukkan ID Pesanan untuk pembayaran: ");
+        String idPesanan = scanner.nextLine();
+
+        for (Pesanan pesanan : daftarPesanan) {
+            if (pesanan.getIdPesanan().equals(idPesanan) && pesanan.getStatus().equals("SIAP")) {
+                String idTransaksi = "T" + System.currentTimeMillis();
+                String tanggal = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+                Transaksi transaksi = new Transaksi(idTransaksi, idPesanan, pesanan.getTotalHarga(),
+                        "CASH", tanggal, "kasir");
+
+                daftarTransaksi.add(transaksi);
+                pesanan.setStatus("SELESAI");
+
+                saveTransaksi();
+                savePesanan();
+
+                System.out.println("Pembayaran berhasil. ID Transaksi: " + idTransaksi);
+                return;
+            }
+        }
+        System.out.println("Pesanan tidak ditemukan atau belum siap");
+    }
+
+    public static void main(String[] args) {
+        Main system = new Main();
+        system.mulai();
+    }
+}
