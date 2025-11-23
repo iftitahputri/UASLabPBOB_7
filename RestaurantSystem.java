@@ -1,20 +1,13 @@
 import java.io.*;
 import java.util.*;
 
-import DetailPesanan.DetailPesanan;
-import DetailPesanan.Pesanan;
-import DetailPesanan.StatusPesanan;
-import Meja.KebersihanMeja;
-import Meja.KetersediaanMeja;
-import Meja.Meja;
-import Menu.MenuItem;
-import Menu.Makanan;
-import Menu.Minuman;
-import Transaksi.CardPayment;
-import Transaksi.CashPayment;
-import Transaksi.QRISPayment;
-import Transaksi.Pembayaran;
-import Transaksi.Struk;
+import Auth.*;
+import DetailPesanan.*;
+import Meja.*;
+import Menu.*;
+import Transaksi.*;
+import User.*;
+import Util.CSVUtils;
 
 public class RestaurantSystem {
     private List<MenuItem> daftarMenu;
@@ -44,7 +37,6 @@ public class RestaurantSystem {
     private void loadData() {
         loadMenuFromCSV();
 
-        // Jika setelah load, menu masih kosong → bikin default dan load ulang
         if (daftarMenu.isEmpty()) {
             System.out.println("CSV kosong atau tidak ditemukan — membuat default...");
             createDefaultCSVMenu();
@@ -54,7 +46,7 @@ public class RestaurantSystem {
     }
 
     private void loadMenuFromCSV() {
-        daftarMenu.clear(); // selalu bersihkan list sebelum load
+        daftarMenu.clear(); 
 
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_MENU))) {
             String line;
@@ -99,7 +91,7 @@ public class RestaurantSystem {
             System.out.println("Menu loaded: " + daftarMenu.size() + " items");
 
         } catch (IOException e) {
-            // Tidak error di sini — biarkan loadData() yang menangani
+            System.out.println("Error loading CSV: " + e.getMessage());
         }
     }
 
@@ -313,7 +305,9 @@ public class RestaurantSystem {
         while (true) {
             System.out.println("\n=== SISTEM RESTORAN ===");
             System.out.println("1. User (Pelanggan)");
-            System.out.println("2. Pekerja (Staff)");
+            System.out.println("2. Daftar Pegawai");
+            System.out.println("3. Login Pegawai");
+            System.out.println("4. Login Manager");
             System.out.println("0. Keluar");
             System.out.print("Pilih: ");
 
@@ -325,10 +319,13 @@ public class RestaurantSystem {
                     menuUser();
                     break;
                 case 2:
-                    menuPegawai();
+                    daftarAkunPegawai();
                     break;
                 case 3:
-                    saveMenuToCSV();
+                    loginPegawai();
+                    break;
+                case 4:
+                    loginManager();
                     break;
                 case 0: {
                     System.out.println("Terima kasih!");
@@ -384,41 +381,6 @@ public class RestaurantSystem {
         }
 
         return;
-    }
-
-    private void menuPegawai() {
-        while (true) {
-            System.out.println("\n=== MENU PEGAWAI ===");
-            System.out.println("1. Pelayan");
-            System.out.println("2. Koki");
-            System.out.println("3. Kasir");
-            System.out.println("4. Manager");
-            System.out.println("0. Kembali");
-            System.out.print("Pilih: ");
-
-            int pilihan = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (pilihan) {
-                case 1:
-                    menuPelayan();
-                    break;
-                case 2:
-                    menuKoki();
-                    break;
-                case 3:
-                    menuKasir();
-                    break;
-                case 4:
-                    menuManager();
-                    break;
-                case 0:
-                    return;
-                default:
-                    System.out.println("Pilihan tidak valid");
-            }
-        }
-
     }
 
     private void menuPelayan() {
@@ -550,7 +512,179 @@ public class RestaurantSystem {
         struk.cetak();
     }
 
-    public void menuManager() {
+    private AkunManager akunManager = new AkunManager();
+    private AkunPegawai akunPegawai = new AkunPegawai();
+
+    private static final String FILE_PEGAWAI = "pegawai.csv";
+
+    private void loginManager() {
+        System.out.print("Username: ");
+        String u = scanner.nextLine();
+        System.out.print("Password: ");
+        String p = scanner.nextLine();
+
+        if (akunManager.login(u, p)) {
+            menuManager();
+        } else {
+            System.out.println("Login gagal.");
+        }
+    }
+
+    private void menuManager() {
+        while (true) {
+            System.out.println("\n=== MENU MANAGER ===");
+            System.out.println("1. Tambah Data Pegawai");
+            System.out.println("2. Lihat Data Pegawai");
+            System.out.println("3. Ganti Username/Password Manager");
+            System.out.println("0. Logout");
+            System.out.print("> ");
+            int p = scanner.nextInt(); scanner.nextLine();
+
+            switch (p) {
+                case 1 -> tambahPegawai();
+                case 2 -> lihatDataPegawai();
+                case 3 -> ubahAkunManager();
+                case 0 -> { return; }
+            }
+        }
+    }
+
+    private void tambahPegawai() {
+        System.out.println("Pilih Role:");
+        System.out.println("1. Pelayan");
+        System.out.println("2. Koki");
+        System.out.println("3. Kasir");
+        System.out.print("> ");
+        int pilih = scanner.nextInt(); scanner.nextLine();
+
+        RolePegawai role = switch (pilih) {
+            case 1 -> RolePegawai.PELAYAN;
+            case 2 -> RolePegawai.KOKI;
+            case 3 -> RolePegawai.KASIR;
+            default -> null;
+        };
+
+        if (role == null) return;
+
+        // generate ID
+        int next = getNextIdByRole(role);
+        String id = role.getKode() + "_" + String.format("%02d", next);
+
+        System.out.print("Nama: ");
+        String nama = scanner.nextLine();
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+        System.out.print("No HP: ");
+        String hp = scanner.nextLine();
+
+        CSVUtils.appendCSV(FILE_PEGAWAI, id, role.name(), nama, email, hp);
+        System.out.println("Pegawai berhasil ditambahkan dengan ID: " + id);
+    }
+
+    private int getNextIdByRole(RolePegawai role) {
+        int max = 0;
+        for (String[] row : CSVUtils.readCSV(FILE_PEGAWAI)) {
+            if (row[1].equals(role.name())) {
+                String num = row[0].split("_")[1];
+                max = Math.max(max, Integer.parseInt(num));
+            }
+        }
+        return max + 1;
+    }
+
+    private void ubahAkunManager() {
+        System.out.print("Username baru: ");
+        String u = scanner.nextLine();
+        System.out.print("Password baru: ");
+        String p = scanner.nextLine();
+
+        akunManager.updateAkun(u, p);
+        System.out.println("Akun manager diperbarui.");
+    }
+
+    private void lihatDataPegawai() {
+        System.out.println("\n=== DATA PEGAWAI ===");
+
+        List<String[]> data = CSVUtils.readCSV(FILE_PEGAWAI);
+
+        if (data.isEmpty()) {
+            System.out.println("Belum ada data pegawai.");
+            return;
+        }
+
+        System.out.printf("%-10s %-12s %-20s %-20s %-15s\n",
+                "ID", "ROLE", "NAMA", "EMAIL", "NO HP");
+        System.out.println("--------------------------------------------------------------------------");
+
+        for (String[] row : data) {
+            System.out.printf("%-10s %-12s %-20s %-20s %-15s\n",
+                    row[0], row[1], row[2], row[3], row[4]);
+        }
+    }
+
+
+    private void daftarAkunPegawai() {
+        System.out.println("\n=== DAFTAR AKUN PEGAWAI ===");
+
+        System.out.print("Masukkan ID Pegawai: ");
+        String id = scanner.nextLine().trim();
+
+        boolean idValid = false;
+        for (String[] row : CSVUtils.readCSV(FILE_PEGAWAI)) {
+            if (row[0].equals(id)) {
+                idValid = true;
+                break;
+            }
+        }
+        if (!idValid) {
+            System.out.println("ID Pegawai tidak ditemukan. Minta ID dari Manager.");
+            return;
+        }
+
+        for (String[] row : CSVUtils.readCSV("akun_pegawai.csv")) {
+            if (row[0].equals(id)) {
+                System.out.println("Akun untuk ID ini sudah terdaftar!");
+                return;
+            }
+        }
+
+        System.out.print("Buat Username: ");
+        String username = scanner.nextLine();
+        System.out.print("Buat Password: ");
+        String password = scanner.nextLine();
+
+        for (String[] row : CSVUtils.readCSV("akun_pegawai.csv")) {
+            if (row[1].equals(username)) {
+                System.out.println("Username sudah digunakan! Coba yang lain.");
+                return;
+            }
+        }
+
+        akunPegawai.daftarAkun(id, username, password);
+
+        System.out.println("Akun berhasil dibuat! Silahkan login.");
+    }
+
+
+    private void loginPegawai() {
+        System.out.print("Username: ");
+        String u = scanner.nextLine();
+        System.out.print("Password: ");
+        String p = scanner.nextLine();
+
+        Akun akun = akunPegawai.login(u, p);
+        if (akun == null) {
+            System.out.println("Login gagal!");
+            return;
+        }
+
+        String id = akun.getIdPegawai();
+        if (id.startsWith("PEL")) menuPelayan();
+        else if (id.startsWith("KOK")) menuKoki();
+        else if (id.startsWith("KAS")) menuKasir();
+        else {
+            System.out.println("Role tidak dikenal pada ID ini!");
+        }
     }
     public static void main(String[] args) {
         RestaurantSystem system = new RestaurantSystem();
