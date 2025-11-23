@@ -10,6 +10,11 @@ import Meja.Meja;
 import Menu.MenuItem;
 import Menu.Makanan;
 import Menu.Minuman;
+import Transaksi.CardPayment;
+import Transaksi.CashPayment;
+import Transaksi.QRISPayment;
+import Transaksi.Pembayaran;
+import Transaksi.Struk;
 
 public class RestaurantSystem {
     private List<MenuItem> daftarMenu;
@@ -488,7 +493,62 @@ public class RestaurantSystem {
         }
     }
 
-    public void menuKasir() {
+    private void menuKasir() {
+        System.out.println("\n=== MENU KASIR ===");
+
+        for (Pesanan p : daftarPesanan) {
+            if (p.getStatus() == StatusPesanan.SELESAI) {
+                System.out.println(p);
+            }
+        }
+
+        System.out.print("Masukkan ID Pesanan untuk dibayar: ");
+        int idPesanan = scanner.nextInt();
+        scanner.nextLine();
+
+        Pesanan pesananBayar = null;
+        for (Pesanan p : daftarPesanan) {
+            if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.SELESAI) {
+                pesananBayar = p;
+                break;
+            }
+        }
+
+        if (pesananBayar == null) {
+            System.out.println("Pesanan tidak ditemukan / belum siap dibayar.");
+            return;
+        }
+
+        System.out.println("Pilih metode pembayaran: ");
+        System.out.println("1. Cash");
+        System.out.println("2. Card");
+        System.out.println("3. QRIS");
+        int metode = scanner.nextInt();
+        scanner.nextLine();
+
+        Pembayaran pembayaran = null;
+        switch (metode) {
+            case 1:
+                pembayaran = new CashPayment(pesananBayar.hitungTotal());
+                break;
+            case 2:
+                pembayaran = new CardPayment(pesananBayar.hitungTotal());
+                break;
+            case 3:
+                pembayaran = new QRISPayment(pesananBayar.hitungTotal());
+                break;
+            default:
+                {
+                System.out.println("Metode tidak valid");
+                return;
+            }
+        }
+
+        pembayaran.prosesPembayaran();
+        pesananBayar.setStatus(StatusPesanan.LUNAS);
+
+        Struk struk = new Struk(pesananBayar, pembayaran);
+        struk.cetak();
     }
 
     public void menuManager() {

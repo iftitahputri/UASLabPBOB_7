@@ -1,11 +1,6 @@
-package transaksi;
-
+package Transaksi;
 
 public interface Pembayaran {
-    boolean prosesPembayaran(double amount);
-    boolean validasiPembayaran();
-    String getDetailPembayaran();
-    String getStatusPembayaran();
-    String getMetodePembayaran(); 
-    String getIdPembayaran();
-} 
+    void prosesPembayaran(); // semua tipe pembayaran wajib implementasi
+    double getJumlahBayar();
+}

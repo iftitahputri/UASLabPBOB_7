@@ -1,51 +1,34 @@
-package transaksi;
-import java.time.LocalDateTime;
+package Transaksi;
+
+import DetailPesanan.Pesanan;
+import DetailPesanan.DetailPesanan;
 
 public class Struk {
-    private String idStruk;
-    private String idPembayaran;
-    private double amount;
-    private LocalDateTime tanggalTransaksi;
-    private String detailPembayaran;
+    private Pesanan pesanan;
+    private Pembayaran pembayaran;
 
-    public Struk(String idStruk, String idPembayaran, double amount, LocalDateTime tanggalTransaksi, String detailPembayaran) {
-        this.idStruk = idStruk;
-        this.idPembayaran = idPembayaran;
-        this.amount = amount;
-        this.tanggalTransaksi = tanggalTransaksi;
-        this.detailPembayaran = detailPembayaran;
+    public Struk(Pesanan pesanan, Pembayaran pembayaran) {
+        this.pesanan = pesanan;
+        this.pembayaran = pembayaran;
     }
 
-    public String getIdStruk() {
-        return idStruk;
-    }
+    public void cetak() {
+        System.out.println("=== STRUK PEMBAYARAN ===");
+        System.out.println("ID Pesanan: " + pesanan.getIdPesanan());
+        System.out.println("Meja: " + pesanan.getMeja().getNomorMeja());
+        System.out.println("Status Pesanan: " + pesanan.getStatus());
+        System.out.println("\nDaftar Pesanan:");
 
-    public String getIdPembayaran() {
-        return idPembayaran;
-    }
+        for (DetailPesanan detail : pesanan.getDetailPesanan()) {
+            System.out.printf(" - %s x %d | Subtotal: Rp %.0f\n",
+                    detail.getItem().getNama(),
+                    detail.getJumlah().getValue(),
+                    detail.getSubtotal().getValue());
+        }
 
-    public double getAmount() {
-        return amount;
-    }
-
-    public LocalDateTime getTanggalTransaksi() {
-        return tanggalTransaksi;
-    }
-
-    public String getDetailPembayaran() {
-        return detailPembayaran;
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-            "Struk Transaksi\n" +
-            "ID Struk: %s\n" +
-            "ID Pembayaran: %s\n" +
-            "Jumlah: Rp%,.2f\n" +
-            "Tanggal: %s\n" +
-            "Detail: %s",
-            idStruk, idPembayaran, amount, tanggalTransaksi, detailPembayaran
-        );
+        System.out.println("\nTotal: Rp " + pesanan.hitungTotal());
+        System.out.println("Metode Pembayaran: " + pembayaran.getClass().getSimpleName());
+        System.out.printf("Jumlah Dibayar: Rp %.0f\n", pembayaran.getJumlahBayar());
+        System.out.println("=========================");
     }
 }

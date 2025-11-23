@@ -1,62 +1,31 @@
-package transaksi;
-import java.time.LocalDateTime;
-import java.util.UUID;
- 
+package Transaksi;
+
+import java.util.Scanner;
+
 public class CashPayment implements Pembayaran {
-    private String idPembayaran;  
-    private double amount;
-    private double cashTendered;
-    private double cashReturn;
-    private String status;
-    private LocalDateTime paymentDate;
-    
-    public CashPayment(double amount, double cashTendered) {
-        this.idPembayaran = "CASH-" + UUID.randomUUID().toString(); // Generate ID
-        this.amount = amount;
-        this.cashTendered = cashTendered;
-        this.cashReturn = 0.0;
-        this.status = "Pending";
+    private double jumlahBayar;
+
+    public CashPayment(double jumlahBayar) {
+        this.jumlahBayar = jumlahBayar;
     }
-    
+
     @Override
-    public boolean prosesPembayaran(double amount) {
-    this.amount = amount; // gunakan parameter untuk konsistensi
-    this.cashReturn = this.cashTendered - this.amount;
-    if (validasiPembayaran()) {
-        this.status = "Success";
-        this.paymentDate = LocalDateTime.now();
-        return true;
+    public double getJumlahBayar() {
+        return jumlahBayar;
     }
-    this.status = "Failed";
-    return false;
-    }
-    
+
     @Override
-    public boolean validasiPembayaran() {
-        return cashTendered >= amount && amount > 0;
-    }
-    
-    @Override
-    public String getDetailPembayaran() {
-        return String.format("CASH - Jumlah: Rp%,.2f, Diberikan: Rp%,.2f, Kembalian: Rp%,.2f", amount, cashTendered, cashReturn);
-    }
-    
-    @Override
-    public String getStatusPembayaran() {
-        return status;
-    }
-    
-    @Override
-    public String getMetodePembayaran() {
-        return "CASH";
-    }
-    
-    @Override
-    public String getIdPembayaran() {
-        return idPembayaran;
-    }
-    
-    public double getKembalian() {
-        return cashReturn;
+    public void prosesPembayaran() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("=== Pembayaran Cash ===");
+        System.out.printf("Total: Rp %.0f\n", jumlahBayar);
+        System.out.print("Masukkan uang tunai: ");
+        double uang = scanner.nextDouble();
+        if (uang >= jumlahBayar) {
+            System.out.printf("Kembalian: Rp %.0f\n", uang - jumlahBayar);
+            System.out.println("Pembayaran berhasil!");
+        } else {
+            System.out.println("Uang tidak cukup. Pembayaran gagal!");
+        }
     }
 }
