@@ -6,6 +6,7 @@ import Menu.Minuman;
 import meja.KebersihanMeja;
 import meja.KetersediaanMeja;
 import meja.Meja;
+import pesanan.Pesanan;
 
 public class RestaurantSystem {
     private List<MenuItem> daftarMenu;
@@ -186,7 +187,7 @@ public class RestaurantSystem {
         return null;
     }
 // ========================= DISPLAY AVAILABLE TABLES =============================
-        public void tampilkanMejaTersedia() {
+    public void tampilkanMejaTersedia() {
         System.out.println("=== Meja Bersih & Tersedia ===");
         for (Meja m : daftarMeja) {
             if (m.getKebersihan() == KebersihanMeja.BERSIH &&
@@ -196,46 +197,75 @@ public class RestaurantSystem {
             }
         }
     }
+    private void setMejaTersedia() {
+        System.out.print("Masukkan nomor meja yang ingin diubah statusnya: ");
+        int nomorMeja = scanner.nextInt();
+        scanner.nextLine();
 
+        Meja mejaDipilih = getMejaByNomor(nomorMeja);
+        mejaDipilih.setTersedia(KetersediaanMeja.TERSEDIA);
 
-    // ========================= PESANAN ===================================
-    // private void buatPesanan(String nomorMeja) {
-    //     System.out.println("\n=== BUAT PESANAN ===");
-    //     tampilkanMenu();
+        System.out.println("Status meja " + nomorMeja + " telah diubah menjadi TERSEDIA.");
 
-    //     List<MenuItem> pesananItems = new ArrayList<>();
+    }
 
-    //     while (true) {
-    //         System.out.print("\nMasukkan ID Menu (0 untuk selesai): ");
-    //         String idMenu = scanner.nextLine().trim();
+    private void bersihkanMeja() {
+        System.out.print("Masukkan nomor meja yang ingin dibersihkan: ");
+        int nomorMeja = scanner.nextInt();
+        scanner.nextLine();
 
-    //         if (idMenu.equals("0")) break;
+        Meja mejaDipilih = getMejaByNomor(nomorMeja);
+        mejaDipilih.kebersihan(KebersihanMeja.BERSIH);
 
-    //         MenuItem menu = cariMenuById(idMenu);
+        System.out.println("Meja " + nomorMeja + " telah dibersihkan.");
+    }   
 
-    //         if (menu != null && menu.isTersedia()) {
-    //             pesananItems.add(menu);
-    //             System.out.println("✔ Ditambahkan: " + menu.getNama());
-    //         } else {
-    //             System.out.println("Menu tidak ditemukan / tidak tersedia.");
-    //         }
-    //     }
+    private void buatPesanan() {
+        System.out.print("Masukkan nomor meja yang ingin memesan: ");
+        int nomorMeja = scanner.nextInt();
+        scanner.nextLine();
+        
+        System.out.println("\n=== BUAT PESANAN ===");
+        tampilkanMenu();
 
-    //     if (!pesananItems.isEmpty()) {
-    //         System.out.println("\n📋 Pesanan Meja " + nomorMeja + ":");
-    //         double total = 0;
+        List<MenuItem> pesananItems = new ArrayList<>();
 
-    //         for (MenuItem item : pesananItems) {
-    //             System.out.println(" - " + item.getInfo());
-    //             total += item.getHarga();
-    //         }
+        while (true) {
+            System.out.print("\nMasukkan ID Menu (0 untuk selesai): ");
+            String idMenu = scanner.nextLine().trim();
 
-    //         System.out.printf("Total: Rp %.0f\n", total);
+            if (idMenu.equals("0")) break;
 
-    //     } else {
-    //         System.out.println("Pesanan kosong.");
-    //     }
-    // }
+            MenuItem menu = cariMenuById(idMenu);
+
+            if (menu != null && menu.isTersedia()) {
+                pesananItems.add(menu);
+                System.out.println("✔ Ditambahkan: " + menu.getNama());
+            } else {
+                System.out.println("Menu tidak ditemukan / tidak tersedia.");
+            }
+        }
+
+        if (!pesananItems.isEmpty()) {
+            System.out.println("\nPesanan Meja " + nomorMeja + ":");
+            double total = 0;
+
+            for (MenuItem item : pesananItems) {
+                System.out.println(" - " + item.getInfo());
+                total += item.getHarga();
+            }
+
+            System.out.printf("Total: Rp %.0f\n", total);
+
+            
+        } else {
+            System.out.println("Pesanan kosong.");
+        }
+
+        Meja mejaDipilih = getMejaByNomor(nomorMeja);
+        mejaDipilih.kebersihan(KebersihanMeja.KOTOR);
+    }
+
 
     // ========================= MENU USER =================================
     public void mulai() {
@@ -318,8 +348,63 @@ public class RestaurantSystem {
     }
 
     private void menuPegawai() {
+        while (true) {
+            System.out.println("\n=== MENU PEGAWAI ===");
+            System.out.println("1. Pelayan");
+            System.out.println("2. Koki");
+            System.out.println("3. Kasir");
+            System.out.println("4. Daftar");
+            System.out.println("0. Kembali");
+            System.out.print("Pilih: ");
+
+            int pilihan = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (pilihan) {
+                case 1:
+                    menuPelayan();
+                    break;
+                // case 2:
+                //     menuKoki();
+                //     break;
+                // case 3:
+                //     menuKasir();
+                //     break;
+                // case 4:
+                //     daftarUser();
+                //     break;
+                case 0:
+                    return;
+                default:
+                    System.out.println("Pilihan tidak valid");
+            }
+        }
+
     }
-    
+
+    private void menuPelayan() {
+
+        while(true) {
+            System.out.println("=== MENU PELAYAN ===");
+            System.out.println("1. Bersihkan Meja");
+            System.out.println("2. Set Meja Tersedia/Tidak Tersedia");
+            System.out.println("3. Buat Pesanan Baru");
+            System.out.println("0. Kembali");
+            System.out.print("Pilih: ");
+
+            int pilihan = scanner.nextInt();
+            scanner.nextLine();
+            switch(pilihan) {
+                case 1: bersihkanMeja(); break;
+                case 2: setMejaTersedia(); break;
+                case 3: buatPesanan(); break;
+                case 0: return;
+                default: System.out.println("Pilihan tidak valid");
+            }
+        }
+
+    }
+
 
     public static void main(String[] args) {
         RestaurantSystem system = new RestaurantSystem();
