@@ -7,6 +7,10 @@ javac -d . RestaurantSystemSwing.java RestaurantSystem.java Auth/*.java DetailPe
 ```
 - jalankan seperti biasa
 ```
-RestaurantSystemSwing.java
+java RestaurantSystemSwing 
+```
+atau
+```
+java RestaurantSystem
 ```
 
