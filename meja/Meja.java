@@ -1,34 +1,45 @@
 package meja;
 
 public class Meja {
-    private NomorMeja nomor;
-    private StatusMeja status;
-    private KapasitasMeja kapasitas;
+    private int nomor;
+    private KetersediaanMeja ketersediaan;
+    private KebersihanMeja kebersihan;
 
-    public Meja(int nomor, int kapasitas) {
-        this.nomor = new NomorMeja(nomor);
-        this.status = new StatusMeja();
-        this.kapasitas = new KapasitasMeja(kapasitas);
+    public Meja(int nomor) {
+        this.nomor = nomor;
+        this.ketersediaan = KetersediaanMeja.TERSEDIA; // default
+        this.kebersihan = KebersihanMeja.BERSIH;       // default
     }
 
-    public void pesan() {
-        if (status.getStatus().equalsIgnoreCase("Kosong")) {
-            status.setDipesan();
-        } else {
-            System.out.println("Meja " + nomor.getNomor() + " sudah " + status.getStatus());
-        }
+    public int getNomorMeja() {
+        return nomor;
     }
 
-    public void kosongkan() {
-        if (status.getStatus().equalsIgnoreCase("Dipesan")) {
-            status.setKosong();
-        } else {
-            System.out.println("Meja " + nomor.getNomor() + " sudah kosong");
-        }
+    public KetersediaanMeja getKetersediaan() {
+        return ketersediaan;
     }
+
+    public KebersihanMeja getKebersihan() {
+        return kebersihan;
+    }
+
+    public void setTersedia(KetersediaanMeja statusBaru) {
+        this.ketersediaan = statusBaru;
+    }
+
+    public void setTidakTersedia() {
+        this.ketersediaan = KetersediaanMeja.DIPESAN;
+    }
+
+    public void kebersihan (KebersihanMeja statusBaru) {
+        this.kebersihan = statusBaru;
+    }
+
 
     @Override
     public String toString() {
-        return "Meja " + nomor.getNomor() + " (" + status.getStatus() + ", kapasitas: " + kapasitas.getKapasitas() + ")";
+        return "Meja " + nomor + " [" +
+                ketersediaan + ", " +
+                kebersihan + "]";
     }
 }

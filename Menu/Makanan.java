@@ -1,30 +1,21 @@
-package Makanan;
+package Menu;
 
+public class Makanan extends MenuItem {
+    private String tingkatPedas;
+    private String kategori;
 
-public class Minuman extends MenuItem {
-    private String ukuran;
-    private String suhu; // Panas/Dingin
-
-    public Minuman(String nama, double harga, String ukuran, String suhu) {
-        super(nama, harga); // Memanggil constructor induk (MenuItem)
-        this.ukuran = ukuran;
-        this.suhu = suhu;
+    public Makanan(String id, String nama, double harga, String tipe, boolean tersedia, String tingkatPedas, String kategori) {
+        super(id, nama, harga, tipe, tersedia);
+        this.tingkatPedas = tingkatPedas;
+        this.kategori = kategori;
     }
 
-    // Getter spesifik untuk Minuman
-    public String getUkuran() {
-        return ukuran;
-    }
+    public String getTingkatPedas() { return tingkatPedas; }
+    public String getKategoriMakan() { return kategori; }
 
-    public String getSuhu() {
-        return suhu;
-    }
-
-    
     @Override
     public String getInfo() {
-        // Format string untuk menampilkan info
-        return String.format("%s (Ukuran: %s, Suhu: %s) - Rp %.0f",
-                getNama(), ukuran, suhu, getHarga());
+        return String.format("%s (Pedas: %s, Kategori: %s) - Rp %.0f",
+                getNama(), tingkatPedas, kategori, getHarga());
     }
 }
