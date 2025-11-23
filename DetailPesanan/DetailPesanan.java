@@ -11,6 +11,7 @@ public class DetailPesanan {
         this.item = item;
         this.jumlah = new Jumlah(jumlah);
         this.catatan = new Catatan(catatan);
+        this.subtotal = new Subtotal(item, this.jumlah);
     }
 
     public MenuItem getItem() { 
