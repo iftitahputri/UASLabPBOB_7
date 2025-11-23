@@ -314,7 +314,6 @@ public class RestaurantSystem {
             System.out.println("\n=== SISTEM RESTORAN ===");
             System.out.println("1. User (Pelanggan)");
             System.out.println("2. Pekerja (Staff)");
-            System.out.println("3. Simpan Menu ke CSV");
             System.out.println("0. Keluar");
             System.out.print("Pilih: ");
 
@@ -393,7 +392,7 @@ public class RestaurantSystem {
             System.out.println("1. Pelayan");
             System.out.println("2. Koki");
             System.out.println("3. Kasir");
-            System.out.println("4. Daftar");
+            System.out.println("4. Manager");
             System.out.println("0. Kembali");
             System.out.print("Pilih: ");
 

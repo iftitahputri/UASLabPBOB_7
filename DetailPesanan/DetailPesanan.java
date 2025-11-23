@@ -11,7 +11,6 @@ public class DetailPesanan {
         this.item = item;
         this.jumlah = new Jumlah(jumlah);
         this.catatan = new Catatan(catatan);
-        
     }
 
     public MenuItem getItem() { 
