@@ -540,12 +540,19 @@ public class RestaurantSystem {
             System.out.print("> ");
             int p = scanner.nextInt(); scanner.nextLine();
 
-            switch (p) {
-                case 1 -> tambahPegawai();
-                case 2 -> lihatDataPegawai();
-                case 3 -> ubahAkunManager();
-                case 0 -> { return; }
-            }
+    switch (p) {
+        case 1:
+            tambahPegawai();
+            break;
+        case 2:
+            lihatDataPegawai();
+            break;
+        case 3:
+            ubahAkunManager();
+            break;
+        case 0:
+            return;
+    }
         }
     }
 
@@ -557,12 +564,21 @@ public class RestaurantSystem {
         System.out.print("> ");
         int pilih = scanner.nextInt(); scanner.nextLine();
 
-        RolePegawai role = switch (pilih) {
-            case 1 -> RolePegawai.PELAYAN;
-            case 2 -> RolePegawai.KOKI;
-            case 3 -> RolePegawai.KASIR;
-            default -> null;
-        };
+    RolePegawai role;
+
+    switch (pilih) {
+        case 1:
+            role = RolePegawai.PELAYAN;
+            break;
+        case 2:
+            role = RolePegawai.KOKI;
+            break;
+        case 3:
+            role = RolePegawai.KASIR;
+            break;
+        default:
+            role = null;
+    }
 
         if (role == null) return;
 
