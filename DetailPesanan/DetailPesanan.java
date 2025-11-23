@@ -1,6 +1,7 @@
 package DetailPesanan;
+import Menu.MenuItem;
 
-public class DetailPesanan {
+public class DetailPesanan { 
     private MenuItem item;      
     private Jumlah jumlah;
     private Catatan catatan;

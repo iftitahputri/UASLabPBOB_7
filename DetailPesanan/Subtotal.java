@@ -1,4 +1,5 @@
 package DetailPesanan;
+import Menu.MenuItem;
 
 public class Subtotal {
     private MenuItem item;

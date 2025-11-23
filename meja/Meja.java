@@ -1,4 +1,4 @@
-package meja;
+package Meja;
 
 public class Meja {
     private int nomor;
@@ -23,12 +23,8 @@ public class Meja {
         return kebersihan;
     }
 
-    public void setTersedia(KetersediaanMeja statusBaru) {
+    public void setKetersediaan(KetersediaanMeja statusBaru) {
         this.ketersediaan = statusBaru;
-    }
-
-    public void setTidakTersedia() {
-        this.ketersediaan = KetersediaanMeja.DIPESAN;
     }
 
     public void kebersihan (KebersihanMeja statusBaru) {

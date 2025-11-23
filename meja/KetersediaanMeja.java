@@ -1,4 +1,4 @@
-package meja;
+package Meja;
 
 public enum KetersediaanMeja {
     TERSEDIA,
