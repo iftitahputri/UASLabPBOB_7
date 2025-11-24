@@ -96,10 +96,10 @@ public class RestaurantSystemSwing extends JFrame {
         staffOnlyButton.setBounds(650, 480, 100, 30); 
         staffOnlyButton.addActionListener(e -> showStaffLoginChoice());
         homePanel.add(staffOnlyButton);
-        
+
         showPanel(homePanel);
     }
-    
+
     // --- LAYAR PELANGGAN: Lihat Meja + Menu + Panggil Pelayan ---
 private void showCustomerPanel1_Meja() {
     JPanel panel1 = new JPanel(new GridBagLayout());
@@ -205,8 +205,7 @@ private JPanel createMejaDisplayPanel() {
     }
 
     return mejaPanel;
-}
-    
+}    
     // Helper untuk membuat Panel Legend/Keterangan Meja
     private JPanel createLegendPanel() {
         JPanel legendPanel = new JPanel(new GridLayout(3, 2, 5, 5));
@@ -228,9 +227,6 @@ private JPanel createMejaDisplayPanel() {
         item.add(new JLabel(text));
         return item;
     }
-
-
-
 
     // --- LAYAR 3: Tampilkan Menu (Panel 2) ---
     private void showCustomerPanel2_Menu() {
@@ -270,9 +266,7 @@ private JPanel createMejaDisplayPanel() {
     panel2.add(southPanel, BorderLayout.SOUTH);
 
     showPanel(panel2);
-}
-
-    // --- LAYAR STAFF: Pilihan Login Staf ---
+}    
     private void showStaffLoginChoice() {
         JPanel staffPanel = new JPanel(new GridLayout(5, 1, 10, 10));
         staffPanel.setBorder(BorderFactory.createEmptyBorder(50, 150, 50, 150));
@@ -733,228 +727,6 @@ private void loadDataPegawai(JTextArea textArea) {
         showPanel(homePanel);
     }
 
-    class BersihkanMejaFrame extends JFrame {
-
-        private MejaService mejaService;
-
-        public BersihkanMejaFrame(MejaService mejaService) {
-            this.mejaService = mejaService;
-
-            setTitle("Pilih Meja untuk Dibersihkan");
-            setSize(600, 400);
-            setLocationRelativeTo(null);
-            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-            JPanel panel = new JPanel();
-            panel.setLayout(new GridLayout(3, 3, 10, 10));  // contoh 9 meja
-
-            var list = mejaService.getDaftarMeja();
-
-            for (var meja : list) {
-                JButton btn = new JButton("Meja " + meja.getNomorMeja());
-
-                // Tentukan warna berdasarkan 2 status
-                Color warna = getWarna(meja);
-                btn.setBackground(warna);
-
-                btn.addActionListener(e -> {
-                    // hanya update kebersihan
-                    mejaService.bersihkanMejaGUI(meja.getNomorMeja());
-
-                    JOptionPane.showMessageDialog(this,
-                            "Meja " + meja.getNomorMeja() + " berhasil dibersihkan!");
-
-                    // refresh tampilan
-                    this.dispose();
-                    new BersihkanMejaFrame(mejaService).setVisible(true);
-                });
-
-                panel.add(btn);
-            }
-
-            add(panel);
-        }
-
-        private Color getWarna(Meja m) {
-            boolean tersedia = (m.getKetersediaan()==KetersediaanMeja.TERSEDIA);
-            boolean bersih   = (m.getKebersihan()==KebersihanMeja.BERSIH);
-
-            if (tersedia && bersih) return Color.GREEN;
-            if (tersedia && !bersih) return Color.ORANGE;
-            if (!tersedia && bersih) return Color.YELLOW;
-            return Color.RED;  // DIPESAN + KOTOR
-        }
-
-        
-    }
-
-    public class BuatPesananFrame extends JFrame {
-        private MenuService menuService;
-        private MejaService mejaService;
-        private PesananService pesananService;
-
-        public BuatPesananFrame(MenuService menuService, MejaService mejaService, PesananService pesananService) {
-            this.menuService = menuService;
-            this.mejaService = mejaService;
-            this.pesananService = pesananService;
-
-            setTitle("Buat Pesanan");
-            setSize(500, 400);
-            setLayout(new BorderLayout());
-
-            // Bagian pilih meja
-            JPanel panelMeja = new JPanel(new GridLayout(0, 5, 5, 5));
-            for (var meja : mejaService.getDaftarMeja()) {
-
-                JButton btn = new JButton("Meja " + meja.getNomorMeja());
-
-                if (meja.getKebersihan().toString().equals("KOTOR")) {
-                    btn.setBackground(Color.RED);
-                } else {
-                    btn.setBackground(Color.GREEN);
-                }
-
-                btn.addActionListener(e -> pilihMenu(meja.getNomorMeja()));
-                panelMeja.add(btn);
-            }
-
-            add(new JLabel("Pilih Meja:"), BorderLayout.NORTH);
-            add(panelMeja, BorderLayout.CENTER);
-
-            setVisible(true);
-        }
-
-        private void pilihMenu(int nomorMeja) {
-            new PilihMenuFrame(menuService, mejaService, pesananService, nomorMeja);
-        }
-    }
-
-    public class PilihMenuFrame extends JFrame {
-        private MenuService menuService;
-        private MejaService mejaService;
-        private PesananService pesananService;
-        private int nomorMeja;
-
-        private Pesanan pesananTemp;
-
-        public PilihMenuFrame(MenuService menuService, MejaService mejaService,
-                              PesananService pesananService, int nomorMeja) {
-
-            this.menuService = menuService;
-            this.mejaService = mejaService;
-            this.pesananService = pesananService;
-            this.nomorMeja = nomorMeja;
-
-            pesananTemp = new Pesanan(mejaService.getMejaByNomor(nomorMeja));
-
-            setTitle("Pilih Menu");
-            setSize(600, 500);
-            setLayout(new BorderLayout());
-
-            JPanel panelMenu = new JPanel(new GridLayout(0, 1));
-
-            for (MenuItem item : menuService.getDaftarMenu()) {
-                JButton btn = new JButton(item.getNama() + " - " + item.getHarga());
-
-                btn.addActionListener(e -> tambahItem(item));
-
-                panelMenu.add(btn);
-            }
-
-            JButton selesaiBtn = new JButton("Simpan Pesanan");
-            selesaiBtn.addActionListener(e -> simpanPesanan());
-
-            add(new JScrollPane(panelMenu), BorderLayout.CENTER);
-            add(selesaiBtn, BorderLayout.SOUTH);
-
-            setVisible(true);
-        }
-
-        private void tambahItem(MenuItem item) {
-            String jumlahStr = JOptionPane.showInputDialog("Jumlah:");
-            if (jumlahStr == null) return;
-
-            int jumlah = Integer.parseInt(jumlahStr);
-
-            DetailPesanan dp = new DetailPesanan(item, jumlah, "");
-            pesananTemp.tambahDetailPesanan(dp);
-
-            JOptionPane.showMessageDialog(this, "Ditambahkan: " + item.getNama());
-        }
-
-        private void simpanPesanan() {
-            if (pesananTemp.getDetailPesanan().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Pesanan kosong!");
-                return;
-            }
-
-            pesananService.getDaftarPesanan().add(pesananTemp);
-            mejaService.getMejaByNomor(nomorMeja).setKebersihan(models.meja.KebersihanMeja.KOTOR);
-
-            JOptionPane.showMessageDialog(this, "Pesanan berhasil disimpan!");
-            dispose();
-        }
-    }
-
-    public class DaftarPesananFrame extends JFrame {
-
-        private PesananService pesananService;
-
-        public DaftarPesananFrame(PesananService pesananService) {
-            this.pesananService = pesananService;
-
-            setTitle("Daftar Pesanan");
-            setSize(600, 400);
-            setLocationRelativeTo(null);
-            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-            // Data untuk tabel
-            String[] columnNames = {"Meja", "Jumlah Item", "Total Harga", "Detail", "Status"};
-            Object[][] data = convertPesananToTableData();
-
-            JTable table = new JTable(data, columnNames);
-            JScrollPane scrollPane = new JScrollPane(table);
-
-            add(scrollPane);
-        }
-
-        private Object[][] convertPesananToTableData() {
-            var list = pesananService.getDaftarPesanan();
-
-            Object[][] data = new Object[list.size()][5];
-
-            for (int i = 0; i < list.size(); i++) {
-                Pesanan p = list.get(i);
-
-                int totalItem = p.getDetailPesanan().stream()
-                        .mapToInt(DetailPesanan::getJumlahValue)
-                        .sum();
-
-                double totalHarga = p.getDetailPesanan().stream()
-                        .mapToDouble(dp -> dp.getJumlahValue() * dp.getItem().getHarga())
-                        .sum();
-
-                // Buat string detail item
-                StringBuilder sb = new StringBuilder();
-                for (DetailPesanan dp : p.getDetailPesanan()) {
-                    sb.append(dp.getItem().getNama())
-                      .append(" x ")
-                      .append(dp.getJumlah())
-                      .append("\n");
-                }
-
-                data[i][0] = p.getMeja().getNomorMeja();
-                data[i][1] = totalItem;
-                data[i][2] = totalHarga;
-                data[i][3] = sb.toString();
-                data[i][4] = p.getStatus().toString();
-            }
-
-            return data;
-        }
-    }
-
-
     // ========= Koki ==========================================================
     private void showKokiPanel_Home(String namaKoki) {
         JPanel homePanel = new JPanel(new BorderLayout());
@@ -984,11 +756,10 @@ private void loadDataPegawai(JTextArea textArea) {
 
     private void showPesananUntukDimasakDialog() {
     // ambil pesanan dari daftar
-    List<Pesanan> daftar = pesananService.getDaftarPesanan();
-    
-    // List<Pesanan> pending = daftar.stream()
-    //     .filter(p -> p.getStatus() == StatusPesanan.DIPESAN)
-    //     .toList();
+    List<Pesanan> daftar = pesananService.getDaftarPesanan().stream()
+        .filter(p -> p.getStatus() == StatusPesanan.DIPESAN)
+        .toList();
+
     if (daftar.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Belum ada pesanan yang harus dimasak.");
         return;
@@ -1023,7 +794,7 @@ private void showUpdateStatusPesananDialog() {
 
     // List pesanan yg bisa diupdate (DIPESAN atau DIMASAK)
     List<Pesanan> bisaUpdate = daftar.stream()
-        .filter(p -> p.getStatus() != StatusPesanan.SELESAI)
+        .filter(p -> p.getStatus() != StatusPesanan.SELESAI && p.getStatus() != StatusPesanan.LUNAS)
         .toList();
 
     if (bisaUpdate.isEmpty()) {
