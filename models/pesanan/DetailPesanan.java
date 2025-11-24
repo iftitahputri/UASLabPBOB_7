@@ -20,6 +20,7 @@ public class DetailPesanan {
     // getter
     public MenuItem getItem() { return item; }
     public Jumlah getJumlah() { return jumlah; }
+    public int getJumlahValue() { return jumlah.getValue(); }
     public Catatan getCatatan() { return catatan; }
     public Subtotal getSubtotal() { return subtotal; }
 

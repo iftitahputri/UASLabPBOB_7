@@ -24,6 +24,13 @@ public class PesananService {
         this.scanner = scanner;
     }
 
+    public PesananService(MenuService menuService, MejaService mejaService) {
+        this.daftarPesanan = new ArrayList<>();
+        this.menuService = menuService;
+        this.mejaService = mejaService;
+    }
+
+
     public void buatPesanan() {
         System.out.print("Masukkan nomor meja yang ingin memesan: ");
         int nomorMeja = scanner.nextInt();

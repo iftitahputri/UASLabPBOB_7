@@ -8,6 +8,10 @@ import models.meja.KebersihanMeja;
 import models.meja.KetersediaanMeja;
 import models.meja.Meja;
 import services.MejaService;
+import services.MenuService;
+import services.PesananService;
+import models.pesanan.*;
+import models.menu.MenuItem;
 
 public class RestaurantSystemSwing extends JFrame {
 
@@ -16,9 +20,16 @@ public class RestaurantSystemSwing extends JFrame {
     private String namaPemesan = ""; 
     private int nomorMejaDipilih = -1;
     private Akun akunLogin; // Untuk menyimpan info akun yang login
+    private MenuService menuService;
+    private MejaService mejaService;
+    private PesananService pesananService;
+    
 
     public RestaurantSystemSwing() {
         this.system = new RestaurantSystem(); 
+        this.menuService = system.getMenuService();
+        this.mejaService = system.getMejaService();
+        this.pesananService = system.getPesananService();
 
         setTitle("Restoran Ibu Kanduang");
         setSize(800, 600);
@@ -562,8 +573,12 @@ public class RestaurantSystemSwing extends JFrame {
 
         bersihkanMejaBtn.addActionListener(e -> {
             new BersihkanMejaFrame(system.getMejaService()).setVisible(true);});
-        buatPesananBtn.addActionListener(e -> showBuatPesananDialog());
-        lihatPesananBtn.addActionListener(e -> showDaftarPesananDialog());
+        buatPesananBtn.addActionListener(e -> {
+            new BuatPesananFrame(menuService, mejaService, pesananService).setVisible(true);
+        });
+        lihatPesananBtn.addActionListener(e -> {
+            new DaftarPesananFrame(system.getPesananService()).setVisible(true);
+        });
         kembaliBtn.addActionListener(e -> showHomeScreen());
 
         homePanel.add(buttonPanel, BorderLayout.CENTER);
@@ -625,10 +640,170 @@ public class RestaurantSystemSwing extends JFrame {
         
     }
 
-    
-    private void showBuatPesananDialog() {
-        // TODO: Implementasi buat pesanan
-        JOptionPane.showMessageDialog(this, "Fitur buat pesanan akan diimplementasi");
+    public class BuatPesananFrame extends JFrame {
+        private MenuService menuService;
+        private MejaService mejaService;
+        private PesananService pesananService;
+
+        public BuatPesananFrame(MenuService menuService, MejaService mejaService, PesananService pesananService) {
+            this.menuService = menuService;
+            this.mejaService = mejaService;
+            this.pesananService = pesananService;
+
+            setTitle("Buat Pesanan");
+            setSize(500, 400);
+            setLayout(new BorderLayout());
+
+            // Bagian pilih meja
+            JPanel panelMeja = new JPanel(new GridLayout(0, 5, 5, 5));
+            for (var meja : mejaService.getDaftarMeja()) {
+
+                JButton btn = new JButton("Meja " + meja.getNomorMeja());
+
+                if (meja.getKebersihan().toString().equals("KOTOR")) {
+                    btn.setBackground(Color.RED);
+                } else {
+                    btn.setBackground(Color.GREEN);
+                }
+
+                btn.addActionListener(e -> pilihMenu(meja.getNomorMeja()));
+                panelMeja.add(btn);
+            }
+
+            add(new JLabel("Pilih Meja:"), BorderLayout.NORTH);
+            add(panelMeja, BorderLayout.CENTER);
+
+            setVisible(true);
+        }
+
+        private void pilihMenu(int nomorMeja) {
+            new PilihMenuFrame(menuService, mejaService, pesananService, nomorMeja);
+        }
+    }
+
+    public class PilihMenuFrame extends JFrame {
+        private MenuService menuService;
+        private MejaService mejaService;
+        private PesananService pesananService;
+        private int nomorMeja;
+
+        private Pesanan pesananTemp;
+
+        public PilihMenuFrame(MenuService menuService, MejaService mejaService,
+                              PesananService pesananService, int nomorMeja) {
+
+            this.menuService = menuService;
+            this.mejaService = mejaService;
+            this.pesananService = pesananService;
+            this.nomorMeja = nomorMeja;
+
+            pesananTemp = new Pesanan(mejaService.getMejaByNomor(nomorMeja));
+
+            setTitle("Pilih Menu");
+            setSize(600, 500);
+            setLayout(new BorderLayout());
+
+            JPanel panelMenu = new JPanel(new GridLayout(0, 1));
+
+            for (MenuItem item : menuService.getDaftarMenu()) {
+                JButton btn = new JButton(item.getNama() + " - " + item.getHarga());
+
+                btn.addActionListener(e -> tambahItem(item));
+
+                panelMenu.add(btn);
+            }
+
+            JButton selesaiBtn = new JButton("Simpan Pesanan");
+            selesaiBtn.addActionListener(e -> simpanPesanan());
+
+            add(new JScrollPane(panelMenu), BorderLayout.CENTER);
+            add(selesaiBtn, BorderLayout.SOUTH);
+
+            setVisible(true);
+        }
+
+        private void tambahItem(MenuItem item) {
+            String jumlahStr = JOptionPane.showInputDialog("Jumlah:");
+            if (jumlahStr == null) return;
+
+            int jumlah = Integer.parseInt(jumlahStr);
+
+            DetailPesanan dp = new DetailPesanan(item, jumlah, "");
+            pesananTemp.tambahDetailPesanan(dp);
+
+            JOptionPane.showMessageDialog(this, "Ditambahkan: " + item.getNama());
+        }
+
+        private void simpanPesanan() {
+            if (pesananTemp.getDetailPesanan().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Pesanan kosong!");
+                return;
+            }
+
+            pesananService.getDaftarPesanan().add(pesananTemp);
+            mejaService.getMejaByNomor(nomorMeja).setKebersihan(models.meja.KebersihanMeja.KOTOR);
+
+            JOptionPane.showMessageDialog(this, "Pesanan berhasil disimpan!");
+            dispose();
+        }
+    }
+
+    public class DaftarPesananFrame extends JFrame {
+
+        private PesananService pesananService;
+
+        public DaftarPesananFrame(PesananService pesananService) {
+            this.pesananService = pesananService;
+
+            setTitle("Daftar Pesanan");
+            setSize(600, 400);
+            setLocationRelativeTo(null);
+            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+            // Data untuk tabel
+            String[] columnNames = {"Meja", "Jumlah Item", "Total Harga", "Detail", "Status"};
+            Object[][] data = convertPesananToTableData();
+
+            JTable table = new JTable(data, columnNames);
+            JScrollPane scrollPane = new JScrollPane(table);
+
+            add(scrollPane);
+        }
+
+        private Object[][] convertPesananToTableData() {
+            var list = pesananService.getDaftarPesanan();
+
+            Object[][] data = new Object[list.size()][5];
+
+            for (int i = 0; i < list.size(); i++) {
+                Pesanan p = list.get(i);
+
+                int totalItem = p.getDetailPesanan().stream()
+                        .mapToInt(DetailPesanan::getJumlahValue)
+                        .sum();
+
+                double totalHarga = p.getDetailPesanan().stream()
+                        .mapToDouble(dp -> dp.getJumlahValue() * dp.getItem().getHarga())
+                        .sum();
+
+                // Buat string detail item
+                StringBuilder sb = new StringBuilder();
+                for (DetailPesanan dp : p.getDetailPesanan()) {
+                    sb.append(dp.getItem().getNama())
+                      .append(" x ")
+                      .append(dp.getJumlah())
+                      .append("\n");
+                }
+
+                data[i][0] = p.getMeja().getNomorMeja();
+                data[i][1] = totalItem;
+                data[i][2] = totalHarga;
+                data[i][3] = sb.toString();
+                data[i][4] = p.getStatus().toString();
+            }
+
+            return data;
+        }
     }
 
     private void showDaftarPesananDialog() {
