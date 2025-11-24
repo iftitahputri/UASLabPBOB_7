@@ -4,17 +4,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import models.auth.Akun;
+import models.pesanan.Pesanan;
+import services.PesananService;
 
 public class RestaurantSystemSwing extends JFrame {
 
     private RestaurantSystem system;
+    private PesananService pesananService;
+
     private JPanel mainContentPanel; 
     private String namaPemesan = ""; 
     private int nomorMejaDipilih = -1;
     private Akun akunLogin; // Untuk menyimpan info akun yang login
+    
 
     public RestaurantSystemSwing() {
         this.system = new RestaurantSystem(); 
+        this.pesananService = system.getPesananService();
+        
 
         setTitle("Restoran Ibu Kanduang");
         setSize(800, 600);
@@ -608,8 +615,31 @@ public class RestaurantSystemSwing extends JFrame {
     }
 
     private void showPesananUntukDimasakDialog() {
-        // TODO: Implementasi lihat pesanan untuk dimasak
-        JOptionPane.showMessageDialog(this, "Fitur lihat pesanan untuk dimasak akan diimplementasi");
+    // ambil pesanan dari daftar
+    List<Pesanan> daftar = pesananService.getDaftarPesanan();
+
+    if (daftar.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Belum ada pesanan yang harus dimasak.");
+        return;
+    }
+
+    String[] columnNames = {"ID", "Meja", "Menu", "Jumlah", "Status"};
+    String[][] data = new String[daftar.size()][6];
+
+    for (int i = 0; i < daftar.size(); i++) {
+        Pesanan p = daftar.get(i);
+        data[i][0] = String.valueOf(p.getIdPesanan());
+        data[i][1] = String.valueOf(p.getMeja());
+        data[i][2] = p.getDetailPesanan().get(0).getItem().getNama(); 
+        data[i][3] = String.valueOf(p.getDetailPesanan().get(0).getJumlah());
+        data[i][4] = p.getStatus().name();
+    }
+
+    JTable table = new JTable(data, columnNames);
+    JScrollPane scroll = new JScrollPane(table);
+    scroll.setPreferredSize(new Dimension(650, 350));
+
+    JOptionPane.showMessageDialog(this, scroll, "Pesanan untuk Dimasak", JOptionPane.PLAIN_MESSAGE);
     }
 
     private void showUpdateStatusPesananDialog() {
