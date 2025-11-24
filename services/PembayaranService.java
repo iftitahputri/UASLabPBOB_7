@@ -84,7 +84,6 @@ public class PembayaranService {
             System.out.println("Pembayaran gagal!");
         }
     
-        
     }
 
     public void cetakUlangStruk() {

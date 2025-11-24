@@ -1,7 +1,5 @@
 package models.transaksi;
 
-import java.util.Scanner;
-
 // class untuk metode pembayaran card
 public class CardPayment implements Pembayaran {
     private double jumlahBayar;
@@ -17,16 +15,8 @@ public class CardPayment implements Pembayaran {
 
     // method proses pembayaran implementasi dari interface
     @Override
-    @SuppressWarnings("resource") // nonactive scanner warning
     public boolean prosesPembayaran() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("=== Pembayaran Card ===");
-        System.out.printf("Total: Rp %.0f\n", jumlahBayar);
-        System.out.print("Masukkan nomor kartu: ");
-        String noKartu = scanner.nextLine();
-        System.out.println("Memproses kartu " + noKartu + "...");
-        System.out.println("Pembayaran berhasil!");
-
+        System.out.println("Pembayaran Card diproses...");
         return true; // pembayaran via card diasumsikan selalu berhasil
     }
 }
