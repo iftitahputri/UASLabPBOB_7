@@ -110,14 +110,6 @@ public class PesananService {
         return pesananSelesai;  
     }
 
-    private void updateStatusKasir(int idPesanan) {
-        for (Pesanan p : daftarPesanan) {
-            if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.SELESAI) {
-                p.setStatus(StatusPesanan.LUNAS);
-                System.out.println("Status diupdate menjadi LUNAS");
-            }
-        }
-    }
 
     public void updateStatusKoki(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
@@ -152,7 +144,6 @@ public class PesananService {
             pesanan.setStatus(StatusPesanan.LUNAS);
             System.out.println("✅ Status pesanan " + idPesanan + " diupdate menjadi LUNAS");
 
-            Meja meja = pesanan.getMeja();
             mejaService.setMejaTersedia(); 
         }
     }

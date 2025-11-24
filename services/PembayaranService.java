@@ -1,6 +1,8 @@
 package services;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import models.pesanan.Pesanan;
@@ -14,10 +16,12 @@ import models.transaksi.Struk;
 public class PembayaranService {
     private PesananService pesananService;
     private Scanner scanner;
+    private Map<Integer, Struk> daftarStruk;
 
     public PembayaranService(PesananService pesananService, Scanner scanner) {
         this.pesananService = pesananService;
         this.scanner = scanner;
+        this.daftarStruk = new HashMap<>();
     }
 
     public void prosesPembayaran() {
@@ -25,7 +29,7 @@ public class PembayaranService {
         
         List<Pesanan> pesananSelesai = pesananService.getPesananSelesai();
         if (pesananSelesai.isEmpty()) {
-            System.out.println("❌ Tidak ada pesanan yang siap dibayar.");
+            System.out.println("Tidak ada pesanan yang siap dibayar.");
             return;
         }
     
@@ -41,7 +45,7 @@ public class PembayaranService {
         Pesanan pesananBayar = pesananService.cariPesananById(idPesanan);
         
         if (pesananBayar == null || pesananBayar.getStatus() != StatusPesanan.SELESAI) {
-            System.out.println("❌ Pesanan tidak ditemukan / belum siap dibayar.");
+            System.out.println("Pesanan tidak ditemukan / belum siap dibayar.");
             return;
         }
     
@@ -68,13 +72,13 @@ public class PembayaranService {
                 return;
         }
         boolean pembayaranBerhasil = pembayaran.prosesPembayaran();
-        pembayaran.prosesPembayaran();
         
         if(pembayaranBerhasil){
             System.out.println("✅ Pembayaran berhasil!");
             pesananService.setPesananLunas(idPesanan);
             Struk struk = new Struk(pesananBayar, pembayaran);
             struk.cetak();
+            daftarStruk.put(idPesanan, struk);
 
         }else{
             System.out.println("Pembayaran gagal!");
@@ -83,5 +87,29 @@ public class PembayaranService {
         
     }
 
+    public void cetakUlangStruk() {
+        System.out.println("\n=== CETAK ULANG STRUK ===");
+        
+        System.out.print("Masukkan ID Pesanan: ");
+        int idPesanan = scanner.nextInt();
+        scanner.nextLine();
 
+        Pesanan pesanan = pesananService.cariPesananById(idPesanan);
+        if (pesanan == null || pesanan.getStatus() != StatusPesanan.LUNAS) {
+            System.out.println("❌ Pesanan tidak ditemukan / belum lunas.");
+            return;
+        }
+
+        // ✅ AMBIL STRUK DARI MAP
+        Struk strukAsli = daftarStruk.get(idPesanan);
+        if (strukAsli == null) {
+            System.out.println("❌ Data struk tidak ditemukan untuk pesanan ini.");
+            return;
+        }
+
+        System.out.println("🧾 MENCETAK ULANG STRUK...");
+        strukAsli.cetak();
+        
+        System.out.println("✅ Struk berhasil dicetak ulang!");
+    }
 }

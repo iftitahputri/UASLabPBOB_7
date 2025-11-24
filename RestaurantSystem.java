@@ -173,7 +173,7 @@ public class RestaurantSystem {
                     pembayaranService.prosesPembayaran();
                     break;
                 case 2:
-                    // pembayaranService.cetakUlangStruk(); (lagi tes validasi metode pembayaran)
+                    pembayaranService.cetakUlangStruk(); 
                     break;
                 case 0:
                     return;
