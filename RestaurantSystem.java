@@ -276,7 +276,44 @@ public class RestaurantSystem {
                 System.out.println("Role tidak dikenal pada ID ini!");
         }
     }
+
+        // ==================== AUTHENTICATION FOR GUI ====================
+    public boolean loginManagerGUI(String u, String p) {
+        return authService.loginManager(u, p);
+    }
+
+    public Akun loginPegawaiGUI(String u, String p) {
+        return authService.loginPegawai(u, p);
+    }
+
+    public String getRolePegawai(String idPegawai) {
+        return authService.getRoleFromId(idPegawai);
+    }
+
+    public void updateAkunManagerGUI(String u, String p) {
+        authService.updateAkunManager(u, p);
+    }
+    // =================================================== GUI Integration Zone ===========================================
+    // ==================== GETTERS FOR GUI INTEGRATION ====================
+    public MenuService getMenuService() {
+        return menuService;
+    }
     
+    public MejaService getMejaService() {
+        return mejaService;
+    }
+    
+    public PesananService getPesananService() {
+        return pesananService;
+    }
+    
+    public AuthService getAuthService() {
+        return authService;
+    }
+    
+    public PembayaranService getPembayaranService() {
+        return pembayaranService;
+    }
     // ==================== MAIN METHOD ====================
     public static void main(String[] args) {
         RestaurantSystem system = new RestaurantSystem();
