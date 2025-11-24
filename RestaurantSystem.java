@@ -58,29 +58,23 @@ public class RestaurantSystem {
 
     // ==================== MENU USER (PELANGGAN) ====================
     private void menuUser() {
-        System.out.println("\nMasukkan nama Anda:");
-        String nama = scanner.nextLine();
 
-        System.out.println("\n=== MEJA TERSEDIA ===");
+        System.out.println("\n=== MEJA BERSIH & TERSEDIA ===");
         mejaService.tampilkanMejaTersedia();
 
-        System.out.print("\nMasukkan Nomor Meja: ");
-        int nomorMeja = scanner.nextInt();
-        scanner.nextLine();
+        System.out.println("\nPilih nomor meja di tempat kepada staf.");
+        System.out.println("Sistem ini tidak melakukan booking otomatis.");
 
-        mejaService.setMejaDipesan(nomorMeja);
-
-        System.out.println("Selamat datang, " + nama + " di Meja " + nomorMeja);
-
-        System.out.println("Berikut adalah menu kami:");
+        System.out.println("\n=== MENU RESTORAN ===");
         menuService.tampilkanMenu();
 
-        System.out.println("Apakah Anda ingin membuat pesanan? (ya/tidak)");
-        String jawaban = scanner.nextLine();
-        if (jawaban.equalsIgnoreCase("ya")) {
-            System.out.println("Pelanggan dipanggil untuk membuat pesanan. Silakan sebutkan pesanan Anda kepada staf.");
-        } else if (jawaban.equalsIgnoreCase("tidak")) {
-            System.out.println("Terima kasih. Silakan hubungi staf jika Anda membutuhkan sesuatu.");
+        System.out.println("\nApakah Anda ingin memanggil pelayan? (ya/tidak)");
+        String jawab = scanner.nextLine();
+
+        if (jawab.equalsIgnoreCase("ya")) {
+            System.out.println("Pelayan akan segera datang.");
+        } else {
+            System.out.println("Silakan lihat menu dengan santai.");
         }
     }
 
@@ -112,12 +106,6 @@ public class RestaurantSystem {
                 case 4:
                     pesananService.lihatPesananPelayan();
                     break;
-                case 5:
-                    System.out.print("Masukkan ID Pesanan yang sudah selesai: ");
-                    int idPesanan = scanner.nextInt();
-                    scanner.nextLine();
-                    // pesananService.updateStatusPelayan(idPesanan);
-                    break;
                 case 0:
                     return;
                 default:
@@ -131,7 +119,8 @@ public class RestaurantSystem {
         while (true) {
             System.out.println("\n=== MENU KOKI ===");
             System.out.println("1. Lihat Pesanan untuk Dimasak");
-            System.out.println("2. Update Status Pesanan");
+            System.out.println("2. Update Status Pesanan Dimasak");
+            System.out.println("2. Update Status Pesanan Selesai");
             System.out.println("0. Kembali");
             System.out.print("Pilih: ");
 
@@ -144,9 +133,15 @@ public class RestaurantSystem {
                     break;
                 case 2:
                     System.out.print("Masukkan ID Pesanan yang sudah dimasak: ");
-                    int idPesanan = scanner.nextInt();
+                    int idPesananMasak = scanner.nextInt();
                     scanner.nextLine();
-                    // pesananService.StatusPesanan(idPesanan);
+                    pesananService.updateStatusKokiMasak(idPesananMasak);
+                    break;
+                case 3:
+                    System.out.print("Masukkan ID Pesanan yang sudah selesai: ");
+                    int idPesananSelesai = scanner.nextInt();
+                    scanner.nextLine();
+                    pesananService.updateStatusKokiSelesai(idPesananSelesai);
                     break;
                 case 0:
                     return;
@@ -178,7 +173,7 @@ public class RestaurantSystem {
                 case 0:
                     return;
                 default:
-                    System.out.println("❌ Pilihan tidak valid");
+                    System.out.println("Pilihan tidak valid");
             }
         }
     }

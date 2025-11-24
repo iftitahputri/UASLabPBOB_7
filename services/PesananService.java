@@ -117,26 +117,24 @@ public class PesananService {
         return pesananSelesai;  
     }
 
-
-    // public void updateStatusKoki(int idPesanan, StatusPesananKoki statusBaru) {
-    //     for (Pesanan p : daftarPesanan) {
-    //         if (p.getIdPesanan() == idPesanan) {
-    //             p.setStatusKoki(statusBaru);
-    //             return;
-    //         }
-    //     }
-    // }
+    public void updateStatusKokiMasak(int idPesanan) {
+        for (Pesanan p : daftarPesanan) {
+            if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.DIPESAN) {
+                p.setStatus(StatusPesanan.DIMASAK);
+                System.out.println("Status diupdate menjadi DIMASAK");
+                return;
+            }
+        }
+    }
     
-    
-
-    // public void updateStatusPelayan(int idPesanan) {
-    //     for (Pesanan p : daftarPesanan) {
-    //         if (p.getIdPesanan() == idPesanan && p.getStatusKoki() == StatusPesananKoki.DIMASAK) {
-    //             p.setStatus(StatusPesanan.SELESAI);
-    //             System.out.println("Status diupdate menjadi SELESAI");
-    //         }
-    //     }
-    // }
+    public void updateStatusKokiSelesai(int idPesanan) {
+        for (Pesanan p : daftarPesanan) {
+            if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.DIMASAK) {
+                p.setStatus(StatusPesanan.SELESAI);
+                System.out.println("Status diupdate menjadi SELESAI");
+            }
+        }
+    }
 
     public Pesanan cariPesananById(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
