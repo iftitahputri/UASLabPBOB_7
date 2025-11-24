@@ -120,12 +120,17 @@ public class PesananService {
 
     public void updateStatusKoki(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
-            if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.DIPESAN) {
-                p.setStatus(StatusPesanan.DIMASAK);
-                System.out.println("Status diupdate menjadi DIMASAK");
+            if (p.getIdPesanan() == idPesanan) {
+                if (p.getStatus() == StatusPesanan.DIPESAN) {
+                    p.setStatus(StatusPesanan.DIMASAK);
+                } else if (p.getStatus() == StatusPesanan.DIMASAK) {
+                    p.setStatus(StatusPesanan.SELESAI);
+                }
+                return;
             }
         }
     }
+    
 
     public void updateStatusPelayan(int idPesanan) {
         for (Pesanan p : daftarPesanan) {

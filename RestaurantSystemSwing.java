@@ -974,9 +974,40 @@ private void loadDataPegawai(JTextArea textArea) {
     }
 
     private void showUpdateStatusPesananDialog() {
-        // TODO: Implementasi update status pesanan
-        JOptionPane.showMessageDialog(this, "Fitur update status pesanan akan diimplementasi");
+        List<Pesanan> daftar = pesananService.getDaftarPesanan();
+
+    if (daftar.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Belum ada pesanan.");
+        return;
     }
+
+    // Pilih pesanan
+    String[] pilihanPesanan = new String[daftar.size()];
+    for (int i = 0; i < daftar.size(); i++) {
+        Pesanan p = daftar.get(i);
+        pilihanPesanan[i] = "ID: " + p.getIdPesanan() + " | Meja " + p.getMeja() + " | Status: " + p.getStatus();
+    }
+
+    String selected = (String) JOptionPane.showInputDialog(
+        this,
+        "Pilih pesanan untuk update status:",
+        "Update Status Pesanan",
+        JOptionPane.QUESTION_MESSAGE,
+        null,
+        pilihanPesanan,
+        pilihanPesanan[0]
+    );
+
+    if (selected == null) return; // user cancel
+
+    // Ambil ID dari string pilihan
+    int id = Integer.parseInt(selected.split(" ")[1]);
+
+    // Update status (DIPESAN → DIMASAK → SELESAI)
+    pesananService.updateStatusKoki(id);
+
+    JOptionPane.showMessageDialog(this, "Status pesanan berhasil diperbarui!");
+}
 
     // ========= Kasir =========================================================
     private void showKasirPanel_Home(String namaKasir) {
@@ -1324,8 +1355,7 @@ private void loadDataPegawai(JTextArea textArea) {
             }
             return meja + " - " + namaPelanggan; 
         }
-    }
-    
+    }   
     class ItemMenuDummy {
         String nama; int qty; double harga;
         public ItemMenuDummy(String n, int q, double h) { nama = n; qty = q; harga = h; }
