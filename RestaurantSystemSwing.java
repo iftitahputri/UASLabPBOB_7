@@ -13,6 +13,13 @@ import services.MenuService;
 import services.PesananService;
 import models.pesanan.*;
 import models.menu.MenuItem;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Locale;
 
 public class RestaurantSystemSwing extends JFrame {
 
@@ -26,6 +33,7 @@ public class RestaurantSystemSwing extends JFrame {
     private Akun akunLogin; // Untuk menyimpan info akun yang login
     private MenuService menuService;
     private MejaService mejaService;
+    private java.util.List<TagihanDummy> riwayatTransaksi = new java.util.ArrayList<>();
 
     public RestaurantSystemSwing() {
         this.system = new RestaurantSystem(); 
@@ -989,12 +997,295 @@ private void loadDataPegawai(JTextArea textArea) {
         buttonPanel.add(cetakStrukBtn);
         buttonPanel.add(kembaliBtn);
 
-        prosesPembayaranBtn.addActionListener(e -> showProsesPembayaranDialog());
-        cetakStrukBtn.addActionListener(e -> showCetakStrukDialog());
+        prosesPembayaranBtn.addActionListener(e -> showKasirPanel_POS());
+        cetakStrukBtn.addActionListener(e -> showCetakUlangDialog());
         kembaliBtn.addActionListener(e -> showHomeScreen());
 
         homePanel.add(buttonPanel, BorderLayout.CENTER);
         showPanel(homePanel);
+    }
+    // ================== LOGIKA KASIR POS (INTEGRASI) ==================
+    
+    // Variabel global sementara untuk logika kasir di panel ini
+    private TagihanDummy tagihanTerpilih = null; 
+    private JLabel lblTotalTagihanPOS;
+    private JLabel lblKembalianPOS;
+    private JTextField txtUangDiterimaPOS;
+    private JButton btnProsesPOS;
+    private DefaultTableModel tableModelPOS;
+    
+    private void showKasirPanel_POS() {
+        JPanel mainPosPanel = new JPanel(new BorderLayout());
+        
+        // --- Header dengan Tombol Kembali ---
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        JLabel title = new JLabel("Proses Pembayaran (POS)", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 18));
+        
+        JButton btnBack = new JButton("< Kembali");
+        btnBack.addActionListener(e -> showKasirPanel_Home("Kasir")); // Kembali ke menu kasir
+        
+        headerPanel.add(btnBack, BorderLayout.WEST);
+        headerPanel.add(title, BorderLayout.CENTER);
+        mainPosPanel.add(headerPanel, BorderLayout.NORTH);
+
+        // --- Split Pane (Kiri & Kanan) ---
+        JSplitPane splitPane = new JSplitPane();
+        splitPane.setDividerLocation(250); 
+        
+        // BAGIAN KIRI: List Meja (Pending Bills)
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        DefaultListModel<TagihanDummy> listModel = new DefaultListModel<>();
+        JList<TagihanDummy> listMeja = new JList<>(listModel);
+        listMeja.setFixedCellHeight(40);
+        
+        // Dummy Data (Nanti diganti dengan system.getPembayaranService().getPendingBills())
+        loadDummyDataPOS(listModel); 
+        
+        listMeja.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                tagihanTerpilih = listMeja.getSelectedValue();
+                updateRincianTable();
+            }
+        });
+        
+        leftPanel.add(new JScrollPane(listMeja), BorderLayout.CENTER);
+        
+        // BAGIAN KANAN: Tabel & Kalkulator
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        
+        // Tabel Rincian
+        String[] cols = {"Menu", "Qty", "Harga", "Subtotal"};
+        tableModelPOS = new DefaultTableModel(cols, 0);
+        JTable table = new JTable(tableModelPOS);
+        rightPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+        
+        // Panel Bawah (Kalkulator)
+        JPanel bottomPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        bottomPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        bottomPanel.add(new JLabel("Total Tagihan:"));
+        lblTotalTagihanPOS = new JLabel("Rp 0");
+        lblTotalTagihanPOS.setFont(new Font("Arial", Font.BOLD, 16));
+        bottomPanel.add(lblTotalTagihanPOS);
+        
+        bottomPanel.add(new JLabel("Uang Diterima:"));
+        txtUangDiterimaPOS = new JTextField();
+        bottomPanel.add(txtUangDiterimaPOS);
+        
+        bottomPanel.add(new JLabel("Kembalian:"));
+        lblKembalianPOS = new JLabel("Rp 0");
+        lblKembalianPOS.setFont(new Font("Arial", Font.BOLD, 16));
+        lblKembalianPOS.setForeground(new Color(0, 150, 0));
+        bottomPanel.add(lblKembalianPOS);
+        
+        btnProsesPOS = new JButton("BAYAR & CETAK");
+        btnProsesPOS.setEnabled(false);
+        btnProsesPOS.setBackground(Color.decode("#69F069"));
+        bottomPanel.add(new JLabel("")); // Spacer
+        bottomPanel.add(btnProsesPOS);
+        
+        rightPanel.add(bottomPanel, BorderLayout.SOUTH);
+        
+        // Logic Realtime Kembalian
+        txtUangDiterimaPOS.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { hitungKembalian(); }
+            public void removeUpdate(DocumentEvent e) { hitungKembalian(); }
+            public void changedUpdate(DocumentEvent e) { hitungKembalian(); }
+        });
+        
+       // Di dalam method showKasirPanel_POS...
+
+        btnProsesPOS.addActionListener(e -> {
+            String inputUang = txtUangDiterimaPOS.getText().replaceAll("[^0-9]", "");
+            double uangDiterima = Double.parseDouble(inputUang);
+            double totalTagihan = tagihanTerpilih.hitungTotal();
+            double kembalian = uangDiterima - totalTagihan;
+
+            // --- UPDATE LOGIKA BARU ---
+            // 1. Simpan data pembayaran ke objek tagihan
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm");
+            
+            tagihanTerpilih.uangDibayar = uangDiterima;
+            tagihanTerpilih.kembalian = kembalian;
+            tagihanTerpilih.waktuTransaksi = now.format(fmt);
+
+            // 2. Masukkan ke List Riwayat
+            riwayatTransaksi.add(tagihanTerpilih);
+
+            // 3. Cetak Struk
+            tampilkanStruk(tagihanTerpilih, uangDiterima, kembalian);
+            
+            // 4. Bersihkan UI
+            JOptionPane.showMessageDialog(this, "Pembayaran Berhasil & Tersimpan di Riwayat.");
+            listModel.removeElement(tagihanTerpilih); 
+            tableModelPOS.setRowCount(0); 
+            tagihanTerpilih = null;
+            lblTotalTagihanPOS.setText("Rp 0");
+            lblKembalianPOS.setText("Rp 0");
+            txtUangDiterimaPOS.setText("");
+            btnProsesPOS.setEnabled(false);
+        });
+
+        splitPane.setLeftComponent(leftPanel);
+        splitPane.setRightComponent(rightPanel);
+        mainPosPanel.add(splitPane, BorderLayout.CENTER);
+
+        showPanel(mainPosPanel); // Tampilkan Panel
+    }
+    private void showCetakUlangDialog() {
+        if (riwayatTransaksi.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Belum ada transaksi yang selesai hari ini.");
+            return;
+        }
+
+        // Dialog Panel
+        JDialog dialog = new JDialog(this, "Riwayat Transaksi (Cetak Ulang)", true);
+        dialog.setSize(400, 500);
+        dialog.setLayout(new BorderLayout());
+        dialog.setLocationRelativeTo(this);
+
+        // List Riwayat
+        DefaultListModel<TagihanDummy> historyModel = new DefaultListModel<>();
+        for (TagihanDummy t : riwayatTransaksi) {
+            historyModel.addElement(t);
+        }
+        
+        JList<TagihanDummy> listHistory = new JList<>(historyModel);
+        listHistory.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        dialog.add(new JScrollPane(listHistory), BorderLayout.CENTER);
+
+        // Tombol Cetak
+        JButton btnPrint = new JButton("Cetak Ulang Struk");
+        btnPrint.setFont(new Font("Arial", Font.BOLD, 14));
+        
+        btnPrint.addActionListener(e -> {
+            TagihanDummy selected = listHistory.getSelectedValue();
+            if (selected != null) {
+                dialog.dispose(); // Tutup dialog dulu
+                // Panggil ulang fungsi cetak struk yang sudah ada
+                tampilkanStruk(selected, selected.uangDibayar, selected.kembalian);
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Pilih transaksi dulu!");
+            }
+        });
+
+        dialog.add(btnPrint, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+    // ================== LOGIKA CETAK STRUK ==================
+    
+    private void tampilkanStruk(TagihanDummy tagihan, double uangDiterima, double kembalian) {
+        StringBuilder struk = new StringBuilder();
+        
+        // Format Tanggal Waktu Saat Ini
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String tanggal = now.format(formatter);
+        NumberFormat fmt = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+
+        // --- Header Struk ---
+        struk.append("==========================================\n");
+        struk.append("          RESTORAN IBU KANDUANG           \n");
+        struk.append("       Jl. Raya Padang - Bukittinggi      \n");
+        struk.append("==========================================\n");
+        struk.append("Tanggal : " + tanggal + "\n");
+        struk.append("Meja    : " + tagihan.meja + "\n");
+        struk.append("Kasir   : Admin (Default)\n"); // Bisa diganti variable nama user login
+        struk.append("Pelanggan: " + tagihan.namaPelanggan + "\n");
+        struk.append("------------------------------------------\n");
+        
+        // --- Daftar Item ---
+        // Format kolom: Nama (Kiri), Qty (Tengah), Total (Kanan)
+        struk.append(String.format("%-18s %-5s %13s\n", "Menu", "Qty", "Subtotal"));
+        struk.append("------------------------------------------\n");
+
+        for (ItemMenuDummy item : tagihan.items) {
+            double subtotal = item.harga * item.qty;
+            String namaMenu = item.nama;
+            
+            // Jika nama menu kepanjangan, potong agar rapi
+            if (namaMenu.length() > 18) namaMenu = namaMenu.substring(0, 15) + "...";
+            
+            struk.append(String.format("%-18s x%-4d %13s\n", 
+                    namaMenu, 
+                    item.qty, 
+                    fmt.format(subtotal).replace("Rp", "")));
+        }
+        
+        struk.append("------------------------------------------\n");
+        
+        // --- Total & Pembayaran ---
+        double total = tagihan.hitungTotal();
+        struk.append(String.format("Total Tagihan : %18s\n", fmt.format(total)));
+        struk.append(String.format("Tunai         : %18s\n", fmt.format(uangDiterima)));
+        struk.append(String.format("Kembalian     : %18s\n", fmt.format(kembalian)));
+        struk.append("==========================================\n");
+        struk.append("          TERIMA KASIH            \n");
+        struk.append("    Silakan Datang Kembali        \n");
+        struk.append("==========================================\n");
+
+        // --- Tampilkan di Jendela Dialog ---
+        JTextArea textArea = new JTextArea(struk.toString());
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12)); // Font Monospaced agar lurus
+        textArea.setEditable(false);
+        
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(350, 450));
+        
+        JOptionPane.showMessageDialog(this, scrollPane, "Cetak Struk", JOptionPane.PLAIN_MESSAGE);
+    }
+    
+    private void updateRincianTable() {
+        if (tagihanTerpilih == null) return;
+        tableModelPOS.setRowCount(0);
+        NumberFormat fmt = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+        
+        for (ItemMenuDummy item : tagihanTerpilih.items) {
+            tableModelPOS.addRow(new Object[]{
+                item.nama, item.qty, fmt.format(item.harga), fmt.format(item.harga * item.qty)
+            });
+        }
+        lblTotalTagihanPOS.setText(fmt.format(tagihanTerpilih.hitungTotal()));
+        txtUangDiterimaPOS.setText("");
+        lblKembalianPOS.setText("Rp 0");
+    }
+    
+    private void hitungKembalian() {
+        if (tagihanTerpilih == null) return;
+        try {
+            String input = txtUangDiterimaPOS.getText().replaceAll("[^0-9]", "");
+            if (input.isEmpty()) return;
+            double uang = Double.parseDouble(input);
+            double total = tagihanTerpilih.hitungTotal();
+            
+            NumberFormat fmt = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+            double kembali = uang - total;
+            lblKembalianPOS.setText(fmt.format(kembali));
+            
+            if (kembali >= 0) {
+                btnProsesPOS.setEnabled(true);
+                lblKembalianPOS.setForeground(Color.GREEN);
+            } else {
+                btnProsesPOS.setEnabled(false);
+                lblKembalianPOS.setForeground(Color.RED);
+            }
+        } catch (Exception ex) {}
+    }
+
+    private void loadDummyDataPOS(DefaultListModel<TagihanDummy> model) {
+        TagihanDummy t1 = new TagihanDummy("Meja 1", "Budi");
+        t1.items.add(new ItemMenuDummy("Nasi Goreng", 2, 25000));
+        t1.items.add(new ItemMenuDummy("Es Teh", 2, 5000));
+        model.addElement(t1);
+        
+        TagihanDummy t2 = new TagihanDummy("Meja 5", "Siti");
+        t2.items.add(new ItemMenuDummy("Ayam Bakar", 4, 30000));
+        model.addElement(t2);
     }
 
     private void showProsesPembayaranDialog() {
@@ -1010,5 +1301,36 @@ private void loadDataPegawai(JTextArea textArea) {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new RestaurantSystemSwing());
     }
+    // ================== CLASS PENDUKUNG KASIR (INTEGRASI) ==================
+   class TagihanDummy {
+        String meja, namaPelanggan;
+        java.util.List<ItemMenuDummy> items = new java.util.ArrayList<>();
+        
+        // Data tambahan untuk riwayat
+        double uangDibayar = 0;
+        double kembalian = 0;
+        String waktuTransaksi = "";
+
+        public TagihanDummy(String m, String n) { meja = m; namaPelanggan = n; }
+        
+        public double hitungTotal() { 
+            return items.stream().mapToDouble(i -> i.harga * i.qty).sum(); 
+        }
+        
+        @Override public String toString() { 
+            // Jika sudah ada waktu transaksi (sudah bayar), tampilkan waktunya
+            if (!waktuTransaksi.isEmpty()) {
+                return "[" + waktuTransaksi + "] " + meja + " - " + namaPelanggan;
+            }
+            return meja + " - " + namaPelanggan; 
+        }
+    }
+    
+    class ItemMenuDummy {
+        String nama; int qty; double harga;
+        public ItemMenuDummy(String n, int q, double h) { nama = n; qty = q; harga = h; }
+    }
+    
 }
+
 
