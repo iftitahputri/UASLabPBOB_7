@@ -314,6 +314,10 @@ public class RestaurantSystem {
     public PembayaranService getPembayaranService() {
         return pembayaranService;
     }
+    
+    public boolean tambahPegawaiGUI(String roleStr, String nama, String email, String hp) {
+    return authService.tambahPegawaiGUI(roleStr, nama, email, hp);
+    }
     // ==================== MAIN METHOD ====================
     public static void main(String[] args) {
         RestaurantSystem system = new RestaurantSystem();
