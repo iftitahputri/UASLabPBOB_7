@@ -1005,9 +1005,9 @@ private void loadDataPegawai(JTextArea textArea) {
     for (int i = 0; i < daftar.size(); i++) {
         Pesanan p = daftar.get(i);
         data[i][0] = String.valueOf(p.getIdPesanan());
-        data[i][1] = String.valueOf(p.getMeja());
+        data[i][1] = String.valueOf(p.getMeja().getNomorMeja());
         data[i][2] = p.getDetailPesanan().get(0).getItem().getNama(); 
-        data[i][3] = String.valueOf(p.getDetailPesanan().get(0).getJumlah());
+        data[i][3] = String.valueOf(p.getDetailPesanan().get(0).getJumlah().getValue());
         data[i][4] = p.getStatus().name();
     }
 
@@ -1030,7 +1030,7 @@ private void loadDataPegawai(JTextArea textArea) {
     String[] pilihanPesanan = new String[daftar.size()];
     for (int i = 0; i < daftar.size(); i++) {
         Pesanan p = daftar.get(i);
-        pilihanPesanan[i] = "ID: " + p.getIdPesanan() + " | Meja " + p.getMeja() + " | Status: " + p.getStatus();
+        pilihanPesanan[i] = "ID: " + p.getIdPesanan() + " | Nama: " + p.getDetailPesanan().get(0).getItem().getNama() + " | Meja: " + p.getMeja().getNomorMeja() + " | Status: " + p.getStatus();
     }
 
     String selected = (String) JOptionPane.showInputDialog(
@@ -1049,8 +1049,24 @@ private void loadDataPegawai(JTextArea textArea) {
     int id = Integer.parseInt(selected.split(" ")[1]);
 
     // Update status (DIPESAN → DIMASAK → SELESAI)
-    pesananService.updateStatusKoki(id);
+    Pesanan pesanan = pesananService.cariPesananById(id);
+        if (pesanan == null) {
+    JOptionPane.showMessageDialog(this, "Pesanan tidak ditemukan!");
+    return;
+    }
+    StatusPesanan[] opsiStatus = StatusPesanan.values();
+    StatusPesanan statusBaru = (StatusPesanan) JOptionPane.showInputDialog(
+    this,
+    "Pilih status baru:",
+    "Update Status Pesanan",
+    JOptionPane.QUESTION_MESSAGE,
+    null,
+    opsiStatus,
+    pesanan.getStatus()
+    );
 
+    if (statusBaru == null) return; // batal
+    pesanan.setStatus(statusBaru);
     JOptionPane.showMessageDialog(this, "Status pesanan berhasil diperbarui!");
 }
 
