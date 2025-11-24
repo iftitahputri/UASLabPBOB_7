@@ -958,10 +958,6 @@ private void loadDataPegawai(JTextArea textArea) {
         }
     }
 
-    private void showDaftarPesananDialog() {
-        // TODO: Implementasi lihat daftar pesanan
-        JOptionPane.showMessageDialog(this, "Fitur lihat daftar pesanan akan diimplementasi");
-    }
 
     // ========= Koki ==========================================================
     private void showKokiPanel_Home(String namaKoki) {
@@ -993,7 +989,10 @@ private void loadDataPegawai(JTextArea textArea) {
     private void showPesananUntukDimasakDialog() {
     // ambil pesanan dari daftar
     List<Pesanan> daftar = pesananService.getDaftarPesanan();
-
+    
+    // List<Pesanan> pending = daftar.stream()
+    //     .filter(p -> p.getStatus() == StatusPesanan.DIPESAN)
+    //     .toList();
     if (daftar.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Belum ada pesanan yang harus dimasak.");
         return;
@@ -1018,19 +1017,31 @@ private void loadDataPegawai(JTextArea textArea) {
     JOptionPane.showMessageDialog(this, scroll, "Pesanan untuk Dimasak", JOptionPane.PLAIN_MESSAGE);
     }
 
-    private void showUpdateStatusPesananDialog() {
-        List<Pesanan> daftar = pesananService.getDaftarPesanan();
+private void showUpdateStatusPesananDialog() {
+    List<Pesanan> daftar = pesananService.getDaftarPesanan();
 
     if (daftar.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Belum ada pesanan.");
         return;
     }
 
-    // Pilih pesanan
-    String[] pilihanPesanan = new String[daftar.size()];
-    for (int i = 0; i < daftar.size(); i++) {
-        Pesanan p = daftar.get(i);
-        pilihanPesanan[i] = "ID: " + p.getIdPesanan() + " | Nama: " + p.getDetailPesanan().get(0).getItem().getNama() + " | Meja: " + p.getMeja().getNomorMeja() + " | Status: " + p.getStatus();
+    // List pesanan yg bisa diupdate (DIPESAN atau DIMASAK)
+    List<Pesanan> bisaUpdate = daftar.stream()
+        .filter(p -> p.getStatus() != StatusPesanan.SELESAI)
+        .toList();
+
+    if (bisaUpdate.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Tidak ada pesanan yang dapat diupdate.");
+        return;
+    }
+
+    String[] pilihanPesanan = new String[bisaUpdate.size()];
+    for (int i = 0; i < bisaUpdate.size(); i++) {
+        Pesanan p = bisaUpdate.get(i);
+        pilihanPesanan[i] =
+            "ID: " + p.getIdPesanan() +
+            " | Menu: " + p.getDetailPesanan().get(0).getItem().getNama() +
+            " | Status: " + p.getStatus();
     }
 
     String selected = (String) JOptionPane.showInputDialog(
@@ -1043,32 +1054,28 @@ private void loadDataPegawai(JTextArea textArea) {
         pilihanPesanan[0]
     );
 
-    if (selected == null) return; // user cancel
+    if (selected == null) return;
 
-    // Ambil ID dari string pilihan
+    // Ambil ID
     int id = Integer.parseInt(selected.split(" ")[1]);
-
-    // Update status (DIPESAN → DIMASAK → SELESAI)
     Pesanan pesanan = pesananService.cariPesananById(id);
-        if (pesanan == null) {
-    JOptionPane.showMessageDialog(this, "Pesanan tidak ditemukan!");
-    return;
-    }
-    StatusPesananKoki[] opsiStatus = StatusPesananKoki.values();
-    StatusPesananKoki statusBaru = (StatusPesananKoki) JOptionPane.showInputDialog(
-    this,
-    "Pilih status baru:",
-    "Update Status Pesanan",
-    JOptionPane.QUESTION_MESSAGE,
-    null,
-    opsiStatus,
-    pesanan.getStatusKoki()
-    );
 
-    if (statusBaru == null) return; // batal
-    pesanan.setStatusKoki(statusBaru);
-    pesananService.updateStatusKoki(id, statusBaru); 
-    JOptionPane.showMessageDialog(this, "Status pesanan berhasil diperbarui!");
+    // Tentukan status berikutnya
+    StatusPesanan statusBaru = switch (pesanan.getStatus()) {
+        case DIPESAN -> StatusPesanan.DIMASAK;
+        case DIMASAK -> StatusPesanan.SELESAI;
+        default -> null; // selesai tidak bisa ubah
+    };
+
+    if (statusBaru == null) {
+        JOptionPane.showMessageDialog(this, "Status tidak dapat diubah lagi.");
+        return;
+    }
+
+    pesanan.setStatus(statusBaru);
+    pesananService.updateStatus(id, statusBaru);
+
+    JOptionPane.showMessageDialog(this, "Status berhasil diupdate menjadi: " + statusBaru);
 }
 
     // ========= Kasir =========================================================

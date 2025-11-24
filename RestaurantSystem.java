@@ -116,7 +116,7 @@ public class RestaurantSystem {
                     System.out.print("Masukkan ID Pesanan yang sudah selesai: ");
                     int idPesanan = scanner.nextInt();
                     scanner.nextLine();
-                    pesananService.updateStatusPelayan(idPesanan);
+                    // pesananService.updateStatusPelayan(idPesanan);
                     break;
                 case 0:
                     return;
@@ -146,7 +146,7 @@ public class RestaurantSystem {
                     System.out.print("Masukkan ID Pesanan yang sudah dimasak: ");
                     int idPesanan = scanner.nextInt();
                     scanner.nextLine();
-                    pesananService.updateStatusKoki(idPesanan);
+                    // pesananService.StatusPesanan(idPesanan);
                     break;
                 case 0:
                     return;

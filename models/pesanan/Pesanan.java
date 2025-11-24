@@ -13,7 +13,6 @@ public class Pesanan {
 
     private int idPesanan;
     private StatusPesanan status; 
-    private StatusPesananKoki statusKoki; 
     private List<DetailPesanan> detailPesanan;
     private Meja meja;
 
@@ -42,11 +41,9 @@ public class Pesanan {
     // getter dan setter
     public int getIdPesanan() { return idPesanan; }
     public StatusPesanan getStatus() { return status; }
-    public StatusPesananKoki getStatusKoki() { return statusKoki; }
     public Meja getMeja() { return meja; }
     public List<DetailPesanan> getDetailPesanan() { return detailPesanan; }
     public void setStatus(StatusPesanan status) { this.status = status; }
-    public void setStatusKoki(StatusPesananKoki statusKoki) { this.statusKoki = statusKoki; }
 
 
     // method untuk menampilkan pesanan
