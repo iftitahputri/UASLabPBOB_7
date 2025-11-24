@@ -9,7 +9,7 @@ public class RestaurantSystem {
     private AuthService authService;
     private PembayaranService pembayaranService;
     private Scanner scanner;
-    
+
     public RestaurantSystem() {
         this.scanner = new Scanner(System.in);
         this.menuService = new MenuService();
@@ -18,7 +18,7 @@ public class RestaurantSystem {
         this.authService = new AuthService(scanner);
         this.pembayaranService = new PembayaranService(pesananService, scanner);
     }
-    
+
     // ==================== MAIN MENU ====================
     public void mulai() {
         while (true) {
@@ -55,26 +55,26 @@ public class RestaurantSystem {
             }
         }
     }
-    
+
     // ==================== MENU USER (PELANGGAN) ====================
     private void menuUser() {
         System.out.println("\nMasukkan nama Anda:");
         String nama = scanner.nextLine();
-        
+
         System.out.println("\n=== MEJA TERSEDIA ===");
         mejaService.tampilkanMejaTersedia();
-        
+
         System.out.print("\nMasukkan Nomor Meja: ");
         int nomorMeja = scanner.nextInt();
         scanner.nextLine();
-                
+
         mejaService.setMejaDipesan(nomorMeja);
-        
+
         System.out.println("Selamat datang, " + nama + " di Meja " + nomorMeja);
-        
+
         System.out.println("Berikut adalah menu kami:");
         menuService.tampilkanMenu();
-        
+
         System.out.println("Apakah Anda ingin membuat pesanan? (ya/tidak)");
         String jawaban = scanner.nextLine();
         if (jawaban.equalsIgnoreCase("ya")) {
@@ -83,7 +83,7 @@ public class RestaurantSystem {
             System.out.println("Terima kasih. Silakan hubungi staf jika Anda membutuhkan sesuatu.");
         }
     }
-    
+
     // ==================== MENU PELAYAN ====================
     private void menuPelayan() {
         while (true) {
@@ -98,7 +98,7 @@ public class RestaurantSystem {
 
             int pilihan = scanner.nextInt();
             scanner.nextLine();
-            
+
             switch (pilihan) {
                 case 1:
                     mejaService.bersihkanMeja();
@@ -125,7 +125,7 @@ public class RestaurantSystem {
             }
         }
     }
-    
+
     // ==================== MENU KOKI ====================
     private void menuKoki() {
         while (true) {
@@ -155,7 +155,7 @@ public class RestaurantSystem {
             }
         }
     }
-    
+
     // ==================== MENU KASIR ====================
     private void menuKasir() {
         while (true) {
@@ -173,7 +173,7 @@ public class RestaurantSystem {
                     pembayaranService.prosesPembayaran();
                     break;
                 case 2:
-                    pembayaranService.cetakUlangStruk(); 
+                    pembayaranService.cetakUlangStruk();
                     break;
                 case 0:
                     return;
@@ -182,7 +182,7 @@ public class RestaurantSystem {
             }
         }
     }
-    
+
     // ==================== AUTHENTICATION ====================
     private void loginManager() {
         System.out.print("Username: ");
@@ -196,7 +196,7 @@ public class RestaurantSystem {
             System.out.println("Login gagal.");
         }
     }
-    
+
     private void menuManager() {
         while (true) {
             System.out.println("\n=== MENU MANAGER ===");
@@ -205,7 +205,7 @@ public class RestaurantSystem {
             System.out.println("3. Ganti Username/Password Manager");
             System.out.println("0. Logout");
             System.out.print("> ");
-            int p = scanner.nextInt(); 
+            int p = scanner.nextInt();
             scanner.nextLine();
 
             switch (p) {
@@ -223,7 +223,7 @@ public class RestaurantSystem {
             }
         }
     }
-    
+
     private void ubahAkunManager() {
         System.out.print("Username baru: ");
         String u = scanner.nextLine();
@@ -233,22 +233,22 @@ public class RestaurantSystem {
         authService.updateAkunManager(u, p);
         System.out.println("Akun manager diperbarui.");
     }
-    
+
     private void daftarAkunPegawai() {
         System.out.println("\n=== DAFTAR AKUN PEGAWAI ===");
 
         System.out.print("Masukkan ID Pegawai: ");
         String id = scanner.nextLine().trim();
-        
+
         System.out.print("Buat Username: ");
         String username = scanner.nextLine();
-        
+
         System.out.print("Buat Password: ");
         String password = scanner.nextLine();
 
         authService.daftarAkunPegawai(id, username, password);
     }
-    
+
     private void loginPegawai() {
         System.out.print("Username: ");
         String u = scanner.nextLine();
@@ -263,21 +263,21 @@ public class RestaurantSystem {
 
         String role = authService.getRoleFromId(akun.getIdPegawai());
         switch (role) {
-            case "PELAYAN": 
-                menuPelayan(); 
+            case "PELAYAN":
+                menuPelayan();
                 break;
-            case "KOKI": 
-                menuKoki(); 
+            case "KOKI":
+                menuKoki();
                 break;
-            case "KASIR": 
-                menuKasir(); 
+            case "KASIR":
+                menuKasir();
                 break;
-            default: 
+            default:
                 System.out.println("Role tidak dikenal pada ID ini!");
         }
     }
 
-        // ==================== AUTHENTICATION FOR GUI ====================
+    // ==================== AUTHENTICATION FOR GUI ====================
     public boolean loginManagerGUI(String u, String p) {
         return authService.loginManager(u, p);
     }
@@ -293,31 +293,34 @@ public class RestaurantSystem {
     public void updateAkunManagerGUI(String u, String p) {
         authService.updateAkunManager(u, p);
     }
-    // =================================================== GUI Integration Zone ===========================================
+
+    // =================================================== GUI Integration Zone
+    // ===========================================
     // ==================== GETTERS FOR GUI INTEGRATION ====================
     public MenuService getMenuService() {
         return menuService;
     }
-    
+
     public MejaService getMejaService() {
         return mejaService;
     }
-    
+
     public PesananService getPesananService() {
         return pesananService;
     }
-    
+
     public AuthService getAuthService() {
         return authService;
     }
-    
+
     public PembayaranService getPembayaranService() {
         return pembayaranService;
     }
-    
+
     public boolean tambahPegawaiGUI(String roleStr, String nama, String email, String hp) {
-    return authService.tambahPegawaiGUI(roleStr, nama, email, hp);
+        return authService.tambahPegawaiGUI(roleStr, nama, email, hp);
     }
+
     // ==================== MAIN METHOD ====================
     public static void main(String[] args) {
         RestaurantSystem system = new RestaurantSystem();
