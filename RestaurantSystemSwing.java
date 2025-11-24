@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import models.auth.Akun;
-import models.pesanan.Pesanan;
 import services.PesananService;
 import models.meja.KebersihanMeja;
 import models.meja.KetersediaanMeja;
@@ -27,8 +26,6 @@ public class RestaurantSystemSwing extends JFrame {
     private Akun akunLogin; // Untuk menyimpan info akun yang login
     private MenuService menuService;
     private MejaService mejaService;
-
-    
 
     public RestaurantSystemSwing() {
         this.system = new RestaurantSystem(); 
@@ -536,15 +533,62 @@ tambahBtn.addActionListener(e -> {
         showPanel(panel);
     }
 
-    private void handleTambahPegawai(JRadioButton kokiRadio, JRadioButton pelayanRadio, JRadioButton kasirRadio, 
-                                   JTextField namaField, JTextField emailField, JTextField hpField) {
-        String roleStr = "";
-        if (kokiRadio.isSelected()) roleStr = "KOKI";
-        else if (pelayanRadio.isSelected()) roleStr = "PELAYAN";
-        else if (kasirRadio.isSelected()) roleStr = "KASIR";
+public void handleTambahPegawai(String role, String nama, String email, String noHp, 
+                               JTextField namaField, JTextField emailField, JTextField hpField,
+                               ButtonGroup roleGroup) {
+    try {
+        // Panggil AuthService untuk menambah pegawai
+        boolean success = system.tambahPegawaiGUI(role, nama, email, noHp);
+        
+        if (success) {
+            JOptionPane.showMessageDialog(this, 
+                "Seorang (" + role + ") " + nama + " berhasil ditambahkan!",
+                "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            
+            // Clear form setelah berhasil
+            namaField.setText("");
+            emailField.setText("");
+            hpField.setText("");
+            roleGroup.clearSelection(); // Reset radio buttons
+            
+            // Refresh data pegawai
+            refreshDataPegawai();
+            
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Gagal menambah pegawai. Periksa data dan coba lagi.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, 
+            "Error: " + ex.getMessage(), 
+            "Error", JOptionPane.ERROR_MESSAGE);
+        ex.printStackTrace();
+    }
+}
 
-        if (roleStr.isEmpty() || namaField.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Semua field harus diisi.", "Error", JOptionPane.ERROR_MESSAGE);
+private void refreshDataPegawai() {
+    // ✅ CEK NULL dulu sebelum menggunakan
+    if (listPegawaiArea != null) {
+        loadDataPegawai(listPegawaiArea);
+        System.out.println("✅ Data pegawai berhasil di-refresh");
+    } else {
+        System.out.println("⚠️  listPegawaiArea masih null, tidak bisa refresh");
+        // Optional: re-initialize atau show error message
+        JOptionPane.showMessageDialog(this, 
+            "Error: Komponen tampilan belum siap. Coba buka menu kepegawaian lagi.",
+            "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+private void loadDataPegawai(JTextArea textArea) {
+    try {
+        textArea.setText(""); // Clear previous data
+        
+        List<String[]> data = Util.CSVUtils.readCSV("pegawai.csv");
+        
+        if (data.isEmpty()) {
+            textArea.setText("Belum ada data pegawai.");
             return;
         }
 
@@ -568,6 +612,7 @@ tambahBtn.addActionListener(e -> {
         e.printStackTrace();
     }
 }
+
     private void showGantiManagerDialog() {
         JPanel gantiPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         JTextField usernameField = new JTextField();
