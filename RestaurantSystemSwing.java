@@ -458,6 +458,14 @@ private void showDaftarAkunPegawaiDialog() {
     private void showManagerPanel_AturKepegawaian() {
         JPanel panel = new JPanel(new BorderLayout());
         
+        // ✅ INISIALISASI listPegawaiArea di sini
+        listPegawaiArea = new JTextArea();
+        listPegawaiArea.setEditable(false);
+        listPegawaiArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+    
+        // ✅ Load data pertama kali
+        loadDataPegawai(listPegawaiArea);
+    
         JLabel title = new JLabel("Pusat Kepegawaian", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(title, BorderLayout.NORTH);
@@ -560,9 +568,6 @@ tambahBtn.addActionListener(e -> {
         JLabel listTitle = new JLabel("List Pegawai", SwingConstants.CENTER);
         listTitle.setFont(new Font("Arial", Font.BOLD, 16));
         listPanel.add(listTitle, BorderLayout.NORTH);
-
-        JTextArea listPegawaiArea = new JTextArea("\n\n");
-        loadDataPegawai(listPegawaiArea);
 
         listPegawaiArea.setEditable(false);
         
@@ -678,6 +683,12 @@ private void loadDataPegawai(JTextArea textArea) {
             
             if (!newP.equals(confirmP)) {
                 JOptionPane.showMessageDialog(this, "Password tidak cocok!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            } 
+            // empty username ka bereh
+            if (newU.isEmpty() || newP.isEmpty()){
+                JOptionPane.showMessageDialog(this, 
+                "Semua field harus diisi!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
