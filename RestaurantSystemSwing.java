@@ -1332,5 +1332,3 @@ private void loadDataPegawai(JTextArea textArea) {
     }
     
 }
-
-
