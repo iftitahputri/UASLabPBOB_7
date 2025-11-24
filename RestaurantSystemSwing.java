@@ -359,31 +359,65 @@ public class RestaurantSystemSwing extends JFrame {
         }
     }
     
-    private void showDaftarAkunPegawaiDialog() {
-        JPanel daftarPanel = new JPanel(new GridLayout(4, 2, 5, 5));
-        JTextField idField = new JTextField();
-        JTextField usernameField = new JTextField();
-        JPasswordField passwordField = new JPasswordField();
-        
-        daftarPanel.add(new JLabel("ID Pegawai:"));
-        daftarPanel.add(idField);
-        daftarPanel.add(new JLabel("Username:"));
-        daftarPanel.add(usernameField);
-        daftarPanel.add(new JLabel("Password:"));
-        daftarPanel.add(passwordField);
+private void showDaftarAkunPegawaiDialog() {
+    JPanel daftarPanel = new JPanel(new GridLayout(5, 2, 5, 5)); // Ubah jadi 5 baris untuk konfirmasi password
+    JTextField idField = new JTextField();
+    JTextField usernameField = new JTextField();
+    JPasswordField passwordField = new JPasswordField();
+    JPasswordField confirmPasswordField = new JPasswordField();
+    
+    daftarPanel.add(new JLabel("ID Pegawai:"));
+    daftarPanel.add(idField);
+    daftarPanel.add(new JLabel("Username:"));
+    daftarPanel.add(usernameField);
+    daftarPanel.add(new JLabel("Password:"));
+    daftarPanel.add(passwordField);
 
-        int result = JOptionPane.showConfirmDialog(this, daftarPanel, 
-                "Daftar Akun Pegawai", JOptionPane.OK_CANCEL_OPTION);
+    int result = JOptionPane.showConfirmDialog(this, daftarPanel, 
+            "Daftar Akun Pegawai", JOptionPane.OK_CANCEL_OPTION);
+    
+    if (result == JOptionPane.OK_OPTION) {
+        String id = idField.getText().trim();
+        String username = usernameField.getText().trim();
+        String password = new String(passwordField.getPassword());
+ 
         
-        if (result == JOptionPane.OK_OPTION) {
-            String id = idField.getText();
-            String username = usernameField.getText();
-            String password = new String(passwordField.getPassword());
+        // Validasi input
+        if (id.isEmpty() || username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "Semua field harus diisi!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+
+        
+        
+        // Panggil AuthService untuk mendaftarkan akun
+        try {
+            boolean success = system.getAuthService().daftarAkunPegawai(id, username, password);
             
-            // TODO: Implementasi pendaftaran akun pegawai
-            JOptionPane.showMessageDialog(this, "Pendaftaran akun untuk ID " + id + " berhasil!");
+            if (success) {
+                JOptionPane.showMessageDialog(this, 
+                    "Pendaftaran akun untuk ID " + id + " berhasil!\nSilakan login dengan username: " + username,
+                    "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                
+                // Clear form untuk input berikutnya
+                idField.setText("");
+                usernameField.setText("");
+                passwordField.setText("");
+                confirmPasswordField.setText("");
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Pendaftaran gagal!\nMungkin ID tidak valid atau username sudah digunakan.\nMinta ID pegawai yang valid dari Manager.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
+}
 
     // ========= Manager =======================================================
     private void showManagerPanel_Home(String namaManager) {
