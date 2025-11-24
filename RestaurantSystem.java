@@ -211,7 +211,7 @@ public class RestaurantSystem {
         scanner.nextLine();
 
         Meja mejaDipilih = getMejaByNomor(nomorMeja);
-        mejaDipilih.kebersihan(KebersihanMeja.BERSIH);
+        mejaDipilih.setKebersihan(KebersihanMeja.BERSIH);
 
         System.out.println("Meja " + nomorMeja + " telah dibersihkan.");
     }
@@ -261,7 +261,7 @@ public class RestaurantSystem {
         }
 
         daftarPesanan.add(pesananBaru); // simpan ke list pesanan
-        mejaDipilih.kebersihan(KebersihanMeja.KOTOR);
+        mejaDipilih.setKebersihan(KebersihanMeja.KOTOR);
 
         System.out.println("\n[OK] Pesanan berhasil dibuat!");
         System.out.println(pesananBaru);

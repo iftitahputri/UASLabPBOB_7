@@ -1,5 +1,6 @@
 package User;
 
+// enum role pegawai
 public enum RolePegawai {
     PELAYAN("PEL"),
     KOKI("KOK"),
@@ -7,11 +8,11 @@ public enum RolePegawai {
 
     private String kode;
 
+    // constructor
     RolePegawai(String kode) {
         this.kode = kode;
     }
 
-    public String getKode() {
-        return kode;
-    }
+    // getter
+    public String getKode() { return kode; }
 }
