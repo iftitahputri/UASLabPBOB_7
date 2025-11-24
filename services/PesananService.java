@@ -143,8 +143,6 @@ public class PesananService {
         if (pesanan != null) {
             pesanan.setStatus(StatusPesanan.LUNAS);
             System.out.println("✅ Status pesanan " + idPesanan + " diupdate menjadi LUNAS");
-
-            mejaService.setMejaTersedia(); 
         }
     }
 
