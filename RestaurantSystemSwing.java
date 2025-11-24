@@ -1,7 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 import models.auth.Akun;
 import services.PesananService;
@@ -10,7 +8,6 @@ import models.meja.KetersediaanMeja;
 import models.meja.Meja;
 import services.MejaService;
 import services.MenuService;
-import services.PesananService;
 import models.pesanan.*;
 import models.transaksi.CardPayment;
 import models.transaksi.QRISPayment;
@@ -28,9 +25,7 @@ public class RestaurantSystemSwing extends JFrame {
 
     private RestaurantSystem system;
     private PesananService pesananService;
-
     private JPanel mainContentPanel; 
-    private int nomorMejaDipilih = -1;
     private JTextArea listPegawaiArea;
     private Akun akunLogin; // Untuk menyimpan info akun yang login
     private MenuService menuService;
@@ -168,12 +163,10 @@ private JPanel createMejaDisplayPanel() {
         KetersediaanMeja ketersediaan = meja.getKetersediaan();
 
         Color warna;
-        boolean bisaDipilih = false;
 
         // === LOGIKA WARNA BERDASARKAN 2 ENUM ===
         if (kebersihan == KebersihanMeja.BERSIH && ketersediaan == KetersediaanMeja.TERSEDIA) {
             warna = Color.GREEN;        // bersih dan tersedia
-            bisaDipilih = true;
 
         } else if (kebersihan == KebersihanMeja.KOTOR && ketersediaan == KetersediaanMeja.TERSEDIA) {
             warna = Color.YELLOW;       // kotor tapi tidak ada pelanggan
@@ -187,19 +180,6 @@ private JPanel createMejaDisplayPanel() {
         mejaButton.setOpaque(true);
         mejaButton.setBorderPainted(false);
         mejaButton.setBackground(warna);
-
-        // Hanya meja hijau yang bisa dipilih
-        if (bisaDipilih) {
-            mejaButton.addActionListener(e -> {
-                if (mejaButton.isSelected()) {
-                    nomorMejaDipilih = nomor;
-                } else {
-                    nomorMejaDipilih = -1;
-                }
-            });
-        } else {
-            mejaButton.setEnabled(false);
-        }
 
         mejaPanel.add(mejaButton);
     }

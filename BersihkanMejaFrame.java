@@ -1,6 +1,6 @@
-// File: BersihkanMejaFrame.java
 import javax.swing.*;
 import java.awt.*;
+
 import models.meja.Meja;
 import services.MejaService;
 

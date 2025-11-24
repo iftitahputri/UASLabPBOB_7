@@ -1,7 +1,5 @@
-// File: DaftarPesananFrame.java
 import javax.swing.*;
-// import javax.swing.table.DefaultTableModel;
-// import java.awt.*;
+
 import models.pesanan.Pesanan;
 import models.pesanan.DetailPesanan;
 import services.PesananService;

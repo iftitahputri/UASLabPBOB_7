@@ -1,4 +1,3 @@
-// File: BuatPesananFrame.java
 import javax.swing.*;
 import java.awt.*;
 import services.MenuService;
