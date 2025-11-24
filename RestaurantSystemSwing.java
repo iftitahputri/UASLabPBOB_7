@@ -4,6 +4,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import models.auth.Akun;
+import models.meja.KebersihanMeja;
+import models.meja.KetersediaanMeja;
+import models.meja.Meja;
+import services.MejaService;
 
 public class RestaurantSystemSwing extends JFrame {
 
@@ -556,7 +560,8 @@ public class RestaurantSystemSwing extends JFrame {
         buttonPanel.add(lihatPesananBtn);
         buttonPanel.add(kembaliBtn);
 
-        bersihkanMejaBtn.addActionListener(e -> showBersihkanMejaDialog());
+        bersihkanMejaBtn.addActionListener(e -> {
+            new BersihkanMejaFrame(system.getMejaService()).setVisible(true);});
         buatPesananBtn.addActionListener(e -> showBuatPesananDialog());
         lihatPesananBtn.addActionListener(e -> showDaftarPesananDialog());
         kembaliBtn.addActionListener(e -> showHomeScreen());
@@ -565,11 +570,62 @@ public class RestaurantSystemSwing extends JFrame {
         showPanel(homePanel);
     }
 
-    private void showBersihkanMejaDialog() {
-        // TODO: Implementasi bersihkan meja
-        JOptionPane.showMessageDialog(this, "Fitur bersihkan meja akan diimplementasi");
+    class BersihkanMejaFrame extends JFrame {
+
+        private MejaService mejaService;
+
+        public BersihkanMejaFrame(MejaService mejaService) {
+            this.mejaService = mejaService;
+
+            setTitle("Pilih Meja untuk Dibersihkan");
+            setSize(600, 400);
+            setLocationRelativeTo(null);
+            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+            JPanel panel = new JPanel();
+            panel.setLayout(new GridLayout(3, 3, 10, 10));  // contoh 9 meja
+
+            var list = mejaService.getDaftarMeja();
+
+            for (var meja : list) {
+                JButton btn = new JButton("Meja " + meja.getNomorMeja());
+
+                // Tentukan warna berdasarkan 2 status
+                Color warna = getWarna(meja);
+                btn.setBackground(warna);
+
+                btn.addActionListener(e -> {
+                    // hanya update kebersihan
+                    mejaService.bersihkanMejaGUI(meja.getNomorMeja());
+
+                    JOptionPane.showMessageDialog(this,
+                            "Meja " + meja.getNomorMeja() + " berhasil dibersihkan!");
+
+                    // refresh tampilan
+                    this.dispose();
+                    new BersihkanMejaFrame(mejaService).setVisible(true);
+                });
+
+                panel.add(btn);
+            }
+
+            add(panel);
+        }
+
+        private Color getWarna(Meja m) {
+            boolean tersedia = (m.getKetersediaan()==KetersediaanMeja.TERSEDIA);
+            boolean bersih   = (m.getKebersihan()==KebersihanMeja.BERSIH);
+
+            if (tersedia && bersih) return Color.GREEN;
+            if (tersedia && !bersih) return Color.ORANGE;
+            if (!tersedia && bersih) return Color.YELLOW;
+            return Color.RED;  // DIPESAN + KOTOR
+        }
+
+        
     }
 
+    
     private void showBuatPesananDialog() {
         // TODO: Implementasi buat pesanan
         JOptionPane.showMessageDialog(this, "Fitur buat pesanan akan diimplementasi");

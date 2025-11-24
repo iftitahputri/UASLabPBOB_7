@@ -72,6 +72,11 @@ public class MejaService {
         System.out.println("Meja " + nomorMeja + " telah dipesan.");
     }
 
+    public void bersihkanMejaGUI(int nomorMeja) {
+    Meja meja = daftarMeja.get(nomorMeja - 1);
+    meja.setKebersihan(KebersihanMeja.BERSIH);
+    System.out.println("Meja " + nomorMeja + " sudah dibersihkan (GUI).");
+    }
 
     public List<Meja> getDaftarMeja() {return daftarMeja; }
 
