@@ -30,13 +30,11 @@ public class RestaurantSystemSwing extends JFrame {
     private PesananService pesananService;
 
     private JPanel mainContentPanel; 
-    private String namaPemesan = ""; 
     private int nomorMejaDipilih = -1;
     private JTextArea listPegawaiArea;
     private Akun akunLogin; // Untuk menyimpan info akun yang login
     private MenuService menuService;
     private MejaService mejaService;
-    // private java.util.List<Tagihan> riwayatTransaksi = new java.util.ArrayList<>();
 
     public RestaurantSystemSwing() {
         this.system = new RestaurantSystem(); 
@@ -98,114 +96,116 @@ public class RestaurantSystemSwing extends JFrame {
         staffOnlyButton.setBounds(650, 480, 100, 30); 
         staffOnlyButton.addActionListener(e -> showStaffLoginChoice());
         homePanel.add(staffOnlyButton);
-
+        
         showPanel(homePanel);
     }
-
-    // --- LAYAR 2: Input Nama & Pilih Meja (Panel 1) ---
-    private void showCustomerPanel1_Meja() {
-        JPanel panel1 = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // --- 1. Nama Pemesan ---
-        JLabel namaLabel = new JLabel("Nama Pemesan");
-        JTextField namaField = new JTextField(20);
-
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 1;
-        panel1.add(namaLabel, gbc);
-        
-        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 3; gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel1.add(namaField, gbc);
-
-        // --- 2. Pilih Meja ---
-        JLabel mejaLabel = new JLabel("Pilih Meja");
-        mejaLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 3; gbc.fill = GridBagConstraints.NONE;
-        panel1.add(mejaLabel, gbc);
-
-        JPanel mejaPanel = createMejaButtonPanel();
-        
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
-        panel1.add(mejaPanel, gbc);
-        
-        // --- 3. Legend/Keterangan ---
-        JPanel legendPanel = createLegendPanel();
-        
-        gbc.gridx = 2; gbc.gridy = 3; gbc.gridwidth = 1;
-        panel1.add(legendPanel, gbc);
-        
-        // --- 4. Tombol Lanjut ---
-        JButton lanjutButton = new JButton("Lanjut");
-        lanjutButton.setBackground(Color.decode("#69F069"));
-        lanjutButton.setOpaque(true);
-        lanjutButton.setBorderPainted(false);
-        lanjutButton.setPreferredSize(new Dimension(150, 40));
-        
-        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 1; gbc.anchor = GridBagConstraints.CENTER;
-        panel1.add(lanjutButton, gbc);
-
-        // Action Listener untuk Lanjut
-        lanjutButton.addActionListener(e -> {
-            namaPemesan = namaField.getText().trim();
-            if (namaPemesan.isEmpty() || nomorMejaDipilih == -1) {
-                JOptionPane.showMessageDialog(this, "Nama dan Meja harus diisi!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-            // Set meja dipesan melalui MejaService
-            // system.getMejaService().setMejaDipesan(nomorMejaDipilih);
-            
-            showCustomerPanel2_Menu();
-        });
-        
-        showPanel(panel1);
-    }
     
-    // Helper untuk membuat Panel Tombol Meja
-    private JPanel createMejaButtonPanel() {
-        JPanel mejaPanel = new JPanel(new GridLayout(3, 5, 5, 5));
-        
-        // TODO: Integrasi dengan MejaService untuk mendapatkan status meja sebenarnya
-        // List<Meja> semuaMeja = system.getMejaService().getAllMeja();
-        
-        for (int i = 1; i <= 15; i++) {
-            // Status meja dari sistem (sementara hardcode)
-            Color warna = Color.GRAY; 
-            boolean tersedia = false;
-            
-            // Contoh: meja 2, 6 tersedia
-            if (i == 2 || i == 6) {
-                warna = Color.GREEN;
-                tersedia = true;
-            } else if (i == 4 || i == 8 || i == 12 || i == 13) {
-                warna = Color.YELLOW; // Belum dibersihkan
-            } else {
-                warna = Color.LIGHT_GRAY; // Terisi
-            }
+    // --- LAYAR PELANGGAN: Lihat Meja + Menu + Panggil Pelayan ---
+private void showCustomerPanel1_Meja() {
+    JPanel panel1 = new JPanel(new GridBagLayout());
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(10, 10, 10, 10);
+    gbc.anchor = GridBagConstraints.WEST;
 
-            JToggleButton mejaButton = new JToggleButton(String.valueOf(i));
-            mejaButton.setBackground(warna);
-            mejaButton.setOpaque(true);
-            mejaButton.setBorderPainted(false);
-            
-            if (tersedia) {
-                mejaButton.addActionListener(e -> {
-                    if (mejaButton.isSelected()) {
-                        nomorMejaDipilih = Integer.parseInt(mejaButton.getText());
-                    } else {
-                        nomorMejaDipilih = -1;
-                    }
-                });
-            } else {
-                mejaButton.setEnabled(false);
-            }
-            mejaPanel.add(mejaButton);
+    // Judul / Header
+    JLabel header = new JLabel("Status Meja Saat Ini");
+    header.setFont(new Font("Arial", Font.BOLD, 20));
+    gbc.gridx = 0; gbc.gridy = 0;
+    gbc.gridwidth = 3;
+    panel1.add(header, gbc);
+
+    // Panel meja (hanya tampilan, tidak bisa dipilih)
+    JPanel mejaPanel = createMejaDisplayPanel();
+    gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
+    panel1.add(mejaPanel, gbc);
+
+    // Legend
+    JPanel legendPanel = createLegendPanel();
+    gbc.gridx = 2; gbc.gridy = 1; gbc.gridwidth = 1;
+    panel1.add(legendPanel, gbc);
+
+    // Tombol lihat menu
+    JButton lihatMenuBtn = new JButton("Lihat Menu");
+    lihatMenuBtn.setPreferredSize(new Dimension(150, 40));
+    lihatMenuBtn.setBackground(Color.decode("#69F069"));
+    lihatMenuBtn.setOpaque(true);
+    lihatMenuBtn.setBorderPainted(false);
+
+    gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 1;
+    panel1.add(lihatMenuBtn, gbc);
+
+    // Tombol panggil pelayan
+    JButton panggilPelayanBtn = new JButton("Panggil Pelayan");
+    panggilPelayanBtn.setPreferredSize(new Dimension(150, 40));
+    panggilPelayanBtn.setBackground(Color.decode("#FFD966"));
+    panggilPelayanBtn.setOpaque(true);
+    panggilPelayanBtn.setBorderPainted(false);
+
+    gbc.gridx = 1; gbc.gridy = 2;
+    panel1.add(panggilPelayanBtn, gbc);
+
+    // Action
+    lihatMenuBtn.addActionListener(e -> showCustomerPanel2_Menu());
+    panggilPelayanBtn.addActionListener(e -> {
+        JOptionPane.showMessageDialog(this,
+                "Pelayan telah dipanggil. Harap tunggu sebentar.",
+                "Informasi",
+                JOptionPane.INFORMATION_MESSAGE);
+    });
+
+    showPanel(panel1);
+}
+
+private JPanel createMejaDisplayPanel() {
+    JPanel mejaPanel = new JPanel(new GridLayout(3, 5, 5, 5));
+
+    List<Meja> semuaMeja = system.getMejaService().getDaftarMeja();
+
+    for (Meja meja : semuaMeja) {
+
+        int nomor = meja.getNomorMeja();
+        KebersihanMeja kebersihan = meja.getKebersihan();
+        KetersediaanMeja ketersediaan = meja.getKetersediaan();
+
+        Color warna;
+        boolean bisaDipilih = false;
+
+        // === LOGIKA WARNA BERDASARKAN 2 ENUM ===
+        if (kebersihan == KebersihanMeja.BERSIH && ketersediaan == KetersediaanMeja.TERSEDIA) {
+            warna = Color.GREEN;        // bersih dan tersedia
+            bisaDipilih = true;
+
+        } else if (kebersihan == KebersihanMeja.KOTOR && ketersediaan == KetersediaanMeja.TERSEDIA) {
+            warna = Color.YELLOW;       // kotor tapi tidak ada pelanggan
+
+        } else { 
+            warna = Color.LIGHT_GRAY;   // dipesan/occupied
         }
-        return mejaPanel;
+
+        // === Bikin Tombol ===
+        JToggleButton mejaButton = new JToggleButton(String.valueOf(nomor));
+        mejaButton.setOpaque(true);
+        mejaButton.setBorderPainted(false);
+        mejaButton.setBackground(warna);
+
+        // Hanya meja hijau yang bisa dipilih
+        if (bisaDipilih) {
+            mejaButton.addActionListener(e -> {
+                if (mejaButton.isSelected()) {
+                    nomorMejaDipilih = nomor;
+                } else {
+                    nomorMejaDipilih = -1;
+                }
+            });
+        } else {
+            mejaButton.setEnabled(false);
+        }
+
+        mejaPanel.add(mejaButton);
     }
+
+    return mejaPanel;
+}
     
     // Helper untuk membuat Panel Legend/Keterangan Meja
     private JPanel createLegendPanel() {
@@ -229,54 +229,50 @@ public class RestaurantSystemSwing extends JFrame {
         return item;
     }
 
-    // --- LAYAR 3: Daftar Menu (Panel 2) ---
+
+
+
+    // --- LAYAR 3: Tampilkan Menu (Panel 2) ---
     private void showCustomerPanel2_Menu() {
-        JPanel panel2 = new JPanel(new BorderLayout());
-        
-        JLabel titleLabel = new JLabel("Daftar Menu", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        panel2.add(titleLabel, BorderLayout.NORTH);
+    JPanel panel2 = new JPanel(new BorderLayout());
 
-        // --- Tampilan Daftar Menu (JTable) ---
-        // TODO: Integrasi dengan MenuService untuk mendapatkan data menu
-        String[] columnNames = {"ID", "Nama", "Harga", "Tipe"};
-        
-        // Contoh data - ganti dengan data dari MenuService
-        String[][] data = {
-            {"F01", "Nasi Goreng", "25000", "Makanan"},
-            {"D01", "Es Teh", "5000", "Minuman"},
-            // Data lainnya dari MenuService
-        };
-        
-        JTable menuTable = new JTable(data, columnNames);
-        JScrollPane scrollPane = new JScrollPane(menuTable);
-        
-        scrollPane.setPreferredSize(new Dimension(600, 300)); 
-        JPanel tableContainer = new JPanel(new GridBagLayout());
-        tableContainer.add(scrollPane);
-        
-        panel2.add(tableContainer, BorderLayout.CENTER);
-        
-        // --- Tombol Pesan Sekarang ---
-        JButton pesanButton = new JButton("Pesan Sekarang");
-        pesanButton.setBackground(Color.decode("#69F069")); 
-        pesanButton.setOpaque(true);
-        pesanButton.setBorderPainted(false);
-        pesanButton.setPreferredSize(new Dimension(200, 50));
-        
-        JPanel southPanel = new JPanel();
-        southPanel.add(pesanButton);
-        panel2.add(southPanel, BorderLayout.SOUTH);
+    JLabel titleLabel = new JLabel("Daftar Menu", SwingConstants.CENTER);
+    titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+    panel2.add(titleLabel, BorderLayout.NORTH);
 
-        pesanButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Pesanan untuk " + namaPemesan + " di Meja " + nomorMejaDipilih + " akan dibuat.");
-            // TODO: Integrasi dengan PesananService untuk membuat pesanan
-            showHomeScreen();
-        });
+    // Ambil menu dari CSV via MenuService
+    List<MenuItem> menuList = system.getMenuService().getDaftarMenu();
 
-        showPanel(panel2);
+    String[] columnNames = {"ID", "Nama", "Harga", "Tipe"};
+    String[][] data = new String[menuList.size()][4];
+
+    for (int i = 0; i < menuList.size(); i++) {
+        MenuItem item = menuList.get(i);
+        data[i][0] = item.getId();
+        data[i][1] = item.getNama();
+        data[i][2] = String.valueOf(item.getHarga());
+        data[i][3] = item.getTipe();
     }
-    
+
+    JTable menuTable = new JTable(data, columnNames);
+    menuTable.setEnabled(false); // ← supaya benar-benar read-only
+
+    JScrollPane scrollPane = new JScrollPane(menuTable);
+    panel2.add(scrollPane, BorderLayout.CENTER);
+
+    // Tombol kembali
+    JButton backButton = new JButton("Kembali ke Home");
+    backButton.setPreferredSize(new Dimension(200, 50));
+    backButton.addActionListener(e -> showHomeScreen());
+
+    JPanel southPanel = new JPanel();
+    southPanel.add(backButton);
+    panel2.add(southPanel, BorderLayout.SOUTH);
+
+    showPanel(panel2);
+}
+
+    // --- LAYAR STAFF: Pilihan Login Staf ---
     private void showStaffLoginChoice() {
         JPanel staffPanel = new JPanel(new GridLayout(5, 1, 10, 10));
         staffPanel.setBorder(BorderFactory.createEmptyBorder(50, 150, 50, 150));
