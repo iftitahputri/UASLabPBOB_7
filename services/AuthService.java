@@ -21,6 +21,27 @@ public class AuthService {
         initDefaultManager(); //  akun manager default kalau belum ada
     }
 
+    // tambah pegawai untuk GUI
+    public boolean tambahPegawaiGUI(String roleStr, String nama, String email, String hp) {
+    try {
+        RolePegawai role;
+        switch (roleStr) {
+            case "PELAYAN": role = RolePegawai.PELAYAN; break;
+            case "KOKI": role = RolePegawai.KOKI; break;
+            case "KASIR": role = RolePegawai.KASIR; break;
+            default: return false;
+        }
+
+        String id = generateIdPegawai(role);
+        CSVUtils.appendCSV(FILE_DATA_PEGAWAI, id, role.name(), nama, email, hp);
+        System.out.println("✅ Pegawai berhasil ditambahkan dengan ID: " + id);
+        return true;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
     // buat akun manager default kalau file kosong
     private void initDefaultManager() {
         List<String[]> rows = CSVUtils.readCSV(FILE_MANAGER);
