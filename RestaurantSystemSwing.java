@@ -1054,19 +1054,20 @@ private void loadDataPegawai(JTextArea textArea) {
     JOptionPane.showMessageDialog(this, "Pesanan tidak ditemukan!");
     return;
     }
-    StatusPesanan[] opsiStatus = StatusPesanan.values();
-    StatusPesanan statusBaru = (StatusPesanan) JOptionPane.showInputDialog(
+    StatusPesananKoki[] opsiStatus = StatusPesananKoki.values();
+    StatusPesananKoki statusBaru = (StatusPesananKoki) JOptionPane.showInputDialog(
     this,
     "Pilih status baru:",
     "Update Status Pesanan",
     JOptionPane.QUESTION_MESSAGE,
     null,
     opsiStatus,
-    pesanan.getStatus()
+    pesanan.getStatusKoki()
     );
 
     if (statusBaru == null) return; // batal
-    pesanan.setStatus(statusBaru);
+    pesanan.setStatusKoki(statusBaru);
+    pesananService.updateStatusKoki(id, statusBaru); 
     JOptionPane.showMessageDialog(this, "Status pesanan berhasil diperbarui!");
 }
 

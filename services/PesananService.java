@@ -10,6 +10,7 @@ import models.menu.MenuItem;
 import models.pesanan.DetailPesanan;
 import models.pesanan.Pesanan;
 import models.pesanan.StatusPesanan;
+import models.pesanan.StatusPesananKoki;
 
 public class PesananService {
     private List<Pesanan> daftarPesanan;
@@ -118,23 +119,20 @@ public class PesananService {
     }
 
 
-    public void updateStatusKoki(int idPesanan) {
+    public void updateStatusKoki(int idPesanan, StatusPesananKoki statusBaru) {
         for (Pesanan p : daftarPesanan) {
             if (p.getIdPesanan() == idPesanan) {
-                if (p.getStatus() == StatusPesanan.DIPESAN) {
-                    p.setStatus(StatusPesanan.DIMASAK);
-                } else if (p.getStatus() == StatusPesanan.DIMASAK) {
-                    p.setStatus(StatusPesanan.SELESAI);
-                }
+                p.setStatusKoki(statusBaru);
                 return;
             }
         }
     }
     
+    
 
     public void updateStatusPelayan(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
-            if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.DIMASAK) {
+            if (p.getIdPesanan() == idPesanan && p.getStatusKoki() == StatusPesananKoki.DIMASAK) {
                 p.setStatus(StatusPesanan.SELESAI);
                 System.out.println("Status diupdate menjadi SELESAI");
             }
