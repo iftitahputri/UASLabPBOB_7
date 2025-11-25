@@ -11,12 +11,14 @@ import models.pesanan.DetailPesanan;
 import models.pesanan.Pesanan;
 import models.pesanan.StatusPesanan;
 
+// class untuk service pesanan
 public class PesananService {
     private List<Pesanan> daftarPesanan;
     private MenuService menuService;
     private MejaService mejaService;
     private Scanner scanner;
 
+    // constructor
     public PesananService(MenuService menuService, MejaService mejaService, Scanner scanner) {
         this.daftarPesanan = new ArrayList<>();
         this.menuService = menuService;
@@ -24,24 +26,27 @@ public class PesananService {
         this.scanner = scanner;
     }
 
+    // constructor tanpa scanner
     public PesananService(MenuService menuService, MejaService mejaService) {
         this.daftarPesanan = new ArrayList<>();
         this.menuService = menuService;
         this.mejaService = mejaService;
     }
 
-
+    // method buat pesanan baru
     public void buatPesanan() {
         System.out.print("Masukkan nomor meja yang ingin memesan: ");
         int nomorMeja = scanner.nextInt();
         scanner.nextLine();
 
+        // dapatkan meja berdasarkan nomor
         Meja mejaDipilih = mejaService.getMejaByNomor(nomorMeja);
         if (mejaDipilih == null) {
             System.out.println("[X] Meja tidak ditemukan!");
             return;
         }
 
+        // buat pesanan baru
         Pesanan pesananBaru = new Pesanan(mejaDipilih);
 
         System.out.println("\n=== BUAT PESANAN ===");
@@ -64,24 +69,26 @@ public class PesananService {
                 DetailPesanan detail = new DetailPesanan(menu, jumlah, catatan);
                 pesananBaru.tambahDetailPesanan(detail);
 
-                System.out.println("✔ Ditambahkan: " + detail);
+                System.out.println("Ditambahkan: " + detail);
             } else {
-                System.out.println("[X] Menu tidak ditemukan / tidak tersedia.");
+                System.out.println("Menu tidak ditemukan / tidak tersedia.");
             }
         }
 
         if (pesananBaru.getDetailPesanan().isEmpty()) {
-            System.out.println("[X] Pesanan kosong, batal dibuat.");
+            System.out.println("Pesanan kosong, batal dibuat.");
             return;
         }
 
+        // simpan pesanan baru
         daftarPesanan.add(pesananBaru); 
         mejaDipilih.setKebersihan(KebersihanMeja.KOTOR);
 
-        System.out.println("\n[OK] Pesanan berhasil dibuat!");
+        System.out.println("\nPesanan berhasil dibuat!");
         System.out.println(pesananBaru);
     }
 
+    // method lihat semua pesanan
     public void lihatPesananPelayan() {
         System.out.println("=== Semua Pesanan ===");
         for (Pesanan p : daftarPesanan) {
@@ -89,15 +96,17 @@ public class PesananService {
         }
     }
 
+    // method lihat pesanan untuk koki
     public void lihatPesananKoki() {
         System.out.println("=== Pesanan untuk Dimasak ===");
         for (Pesanan p : daftarPesanan) {
-            if (p.getStatus() == StatusPesanan.DIPESAN) {
+            if (p.getStatus() == StatusPesanan.DIPESAN || p.getStatus() == StatusPesanan.DIMASAK) {
                 System.out.println(p);
             }
         }
     }
 
+    // method lihat pesanan untuk kasir
     public void lihatPesananKasir() {
         System.out.println("=== Pesanan Siap Bayar ===");
         for (Pesanan p : daftarPesanan) {
@@ -107,6 +116,7 @@ public class PesananService {
         }
     }
 
+    // method dapatkan pesanan selesai
     public List<Pesanan> getPesananSelesai() {
         List<Pesanan> pesananSelesai = new ArrayList<>();
         for (Pesanan p : daftarPesanan) {
@@ -117,6 +127,7 @@ public class PesananService {
         return pesananSelesai;  
     }
 
+    // method update status pesanan koki dipesan > dimasak
     public void updateStatusKokiMasak(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
             if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.DIPESAN) {
@@ -127,6 +138,7 @@ public class PesananService {
         }
     }
     
+    // method update status pesanan koki dimasak > selesai
     public void updateStatusKokiSelesai(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
             if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.DIMASAK) {
@@ -136,6 +148,7 @@ public class PesananService {
         }
     }
 
+    // method cari pesanan berdasarkan id
     public Pesanan cariPesananById(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
             if (p.getIdPesanan() == idPesanan) {
@@ -145,6 +158,7 @@ public class PesananService {
         return null;
     }
 
+    // method update status pesanan
     public void updateStatus(int idPesanan, StatusPesanan statusBaru) {
         Pesanan pesanan = cariPesananById(idPesanan);
         if (pesanan != null) {
@@ -152,14 +166,15 @@ public class PesananService {
         }
     }
 
-
+    // method set pesanan lunas
     public void setPesananLunas(int idPesanan) {
         Pesanan pesanan = cariPesananById(idPesanan);
         if (pesanan != null) {
             pesanan.setStatus(StatusPesanan.LUNAS);
-            System.out.println("✅ Status pesanan " + idPesanan + " diupdate menjadi LUNAS");
+            System.out.println("Status pesanan " + idPesanan + " diupdate menjadi LUNAS");
         }
     }
 
+    // getter
     public List<Pesanan> getDaftarPesanan() { return daftarPesanan; }
 }
