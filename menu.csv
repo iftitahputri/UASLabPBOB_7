@@ -1,3 +1,4 @@
+ID,Nama,Harga,Tipe,Tersedia,Attrib1,Attrib2
 F01,Nasi Goreng,25000.0,makanan,true,Sedang,Main Course
 F02,Mie Goreng,20000.0,makanan,true,Pedas,Main Course
 F03,Ayam Goreng,18000.0,makanan,true,Tidak Pedas,Main Course
