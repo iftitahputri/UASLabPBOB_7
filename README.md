@@ -24,7 +24,7 @@ Administrasi: Manager dapat menambah pegawai baru.
 **How To Run?**
 - mulai dengan mengcompile semua file
 ```
-javac -d . RestaurantSystemSwing.java RestaurantSystem.java models/auth/*.java models/pesanan/*.java models/meja/*.java models/menu/*.java models/transaksi/*.java services/*.java Util/*.java models/pekerja/*.java
+javac RestaurantSystemSwing.java 
 ```
 - jalankan seperti biasa
 ```
@@ -37,6 +37,7 @@ java RestaurantSystem
 
 **Default User**
 Gunakan Username: admin dengan Password: admin123
+
 
 
 
