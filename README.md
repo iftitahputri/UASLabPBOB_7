@@ -3,7 +3,7 @@
 
 Sistem Restoran Ibu Kanduang adalah sebuah aplikasi manajemen restoran yang dikembangkan menggunakan Java, dirancang untuk mendukung operasional harian di sebuah restoran.
 
-Proyek ini terstruktur berdasarkan lapisan layanan (Service Layer) dan objek data (Model) yang terpisah, menjadikannya modular dan mudah dikelola. Sistem ini dapat dijalankan dalam dua mode:
+Sistem ini dapat dijalankan dalam dua mode:
 
 CLI (Command Line Interface): Berjalan melalui RestaurantSystem.java.
 
@@ -11,7 +11,7 @@ GUI (Graphical User Interface): Berbasis Java Swing, berjalan melalui Restaurant
 
 **Fungsi Utama**
 
-Sistem ini mendukung peran multi-user, termasuk Pelanggan, Pelayan, Koki, Kasir (POS), dan Manager, masing-masing dengan akses dan tugas yang spesifik, seperti:
+Sistem ini mendukung peran multi-user, termasuk Pelanggan, Pelayan, Koki, Kasir, dan Manager, masing-masing dengan akses dan tugas yang spesifik, seperti:
 
 Pemesanan: Pelayan dapat membuat pesanan baru dan Koki dapat memperbarui status masakan (Dipesan -> Dimasak -> Selesai).
 
@@ -37,6 +37,7 @@ java RestaurantSystem
 
 **Default User**
 Gunakan Username: admin dengan Password: admin123
+
 
 
 
