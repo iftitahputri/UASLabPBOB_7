@@ -119,12 +119,26 @@ public class MenuService {
             writer.println("ID,Nama,Harga,Tipe,Tersedia,Attrib1,Attrib2");
 
             String[][] defaultMenu = {
-                    { "F01", "Nasi Goreng", "25000", "makanan", "true", "Sedang", "Main Course" },
-                    { "F02", "Mie Goreng", "20000", "makanan", "true", "Pedas", "Main Course" },
-                    { "F03", "Ayam Goreng", "18000", "makanan", "true", "Tidak Pedas", "Main Course" },
-                    { "D01", "Es Teh", "5000", "minuman", "true", "Medium", "Dingin" },
-                    { "D02", "Jus Jeruk", "8000", "minuman", "true", "Large", "Dingin" },
-                    { "D03", "Kopi", "12000", "minuman", "true", "Small", "Panas" }
+                { "F01", "Nasi Goreng", "25000", "makanan", "true", "Sedang", "Main Course" },
+                { "F02", "Mie Goreng", "20000", "makanan", "true", "Pedas", "Main Course" },
+                { "F03", "Ayam Goreng", "18000", "makanan", "true", "Tidak Pedas", "Main Course" },
+                { "F04", "Capcay", "22000", "makanan", "true", "Tidak Pedas", "Main Course" },
+                { "F05", "Sate Ayam", "27000", "makanan", "true", "Sedang", "Main Course" },
+                { "F06", "Nasi Campur", "30000", "makanan", "true", "Tidak Pedas", "Main Course" },
+                { "F07", "Martabak Telur", "15000", "makanan", "true", "Pedas", "Snack" },
+                { "F08", "Martabak Manis", "20000", "makanan", "true", "Tidak Pedas", "Dessert" },
+                { "F09", "Risoles", "12000", "makanan", "true", "Tidak Pedas", "Snack" },
+                { "F10", "Bakso", "25000", "makanan", "true", "Sedang", "Main Course" },
+                { "D01", "Es Teh", "5000", "minuman", "true", "Medium", "Dingin" },
+                { "D02", "Jus Jeruk", "8000", "minuman", "true", "Large", "Dingin" },
+                { "D03", "Kopi", "12000", "minuman", "true", "Small", "Panas" },
+                { "D04", "Air", "3000", "minuman", "true", "Small", "Dingin" },
+                { "D05", "Es Kopi", "15000", "minuman", "true", "Medium", "Dingin" },
+                { "D06", "Teh Panas", "5000", "minuman", "true", "Small", "Panas" },
+                { "D07", "Jus Alpukat", "12000", "minuman", "true", "Large", "Dingin" },
+                { "D08", "Chocolate Milkshake", "15000", "minuman", "true", "Medium", "Dingin" },
+                { "D09", "Teh Tarik", "10000", "minuman", "true", "Medium", "Panas" },
+                { "D10", "Air Mineral Botol", "4000", "minuman", "true", "Small", "Dingin" }
             };
 
             for (String[] menu : defaultMenu) {
