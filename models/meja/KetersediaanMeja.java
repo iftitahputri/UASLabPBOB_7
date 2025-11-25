@@ -1,6 +1,8 @@
 package models.meja;
 
-// enum status ketersediaan meja
+/**
+ * Status ketersediaan meja.
+ */
 public enum KetersediaanMeja {
     TERSEDIA,
     DIPESAN

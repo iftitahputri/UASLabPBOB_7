@@ -1,19 +1,41 @@
 package models.transaksi;
 
-// class untuk metode pembayaran card
+/**
+ * Implementasi pembayaran menggunakan kartu (debit/kredit).
+ * Mengasumsikan pembayaran kartu selalu berhasil untuk simulasi.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see Pembayaran
+ * @see CashPayment
+ * @see QRISPayment
+ */
 public class CardPayment implements Pembayaran {
     private double jumlahBayar;
 
-    // constructor
+    /**
+     * Constructor untuk CardPayment.
+     * 
+     * @param jumlahBayar jumlah yang harus dibayar
+     */
     public CardPayment(double jumlahBayar) {
         this.jumlahBayar = jumlahBayar;
     }
 
-    // getter implementasi dari interface
+    /**
+     * Mendapatkan jumlah yang harus dibayar.
+     * 
+     * @return jumlah pembayaran
+     */
     @Override
     public double getJumlahBayar() {return jumlahBayar;}
 
-    // method proses pembayaran implementasi dari interface
+    /**
+     * Memproses pembayaran dengan kartu.
+     * Untuk simulasi, pembayaran kartu diasumsikan selalu berhasil.
+     * 
+     * @return true (pembayaran berhasil)
+     */
     @Override
     public boolean prosesPembayaran() {
         System.out.println("Pembayaran Card diproses...");

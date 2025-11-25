@@ -4,17 +4,34 @@ import models.pesanan.Pesanan;
 import models.pesanan.DetailPesanan;
 import services.PesananService;
 
-// frame untuk daftar pesanan
+/**
+ * Frame untuk menampilkan daftar semua pesanan dalam sistem.
+ * Menampilkan informasi pesanan dalam format tabel dengan kolom:
+ * Meja, Jumlah Item, Total Harga, Detail Item, dan Status.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see PesananService
+ * @see Pesanan
+ * @see DetailPesanan
+ */
 public class DaftarPesananFrame extends JFrame {
     private PesananService pesananService;
 
-    //  constructor
+    /**
+     * Constructor untuk DaftarPesananFrame.
+     * 
+     * @param pesananService service untuk mengakses data pesanan
+     */
     public DaftarPesananFrame(PesananService pesananService) {
         this.pesananService = pesananService;
         initializeUI();
     }
 
-    // inisialisasi UI
+    /**
+     * Menginisialisasi komponen UI frame.
+     * Membuat tabel dengan data pesanan dan menampilkannya dalam scroll pane.
+     */
     private void initializeUI() {
         setTitle("Daftar Pesanan");
         setSize(600, 400);
@@ -31,7 +48,11 @@ public class DaftarPesananFrame extends JFrame {
         add(scrollPane);
     }
 
-    // konversi daftar pesanan ke data tabel
+    /**
+     * Mengkonversi daftar pesanan menjadi data tabel 2D.
+     * 
+     * @return array 2D berisi data pesanan untuk ditampilkan di tabel
+     */
     private Object[][] convertPesananToTableData() {
         var list = pesananService.getDaftarPesanan();
         Object[][] data = new Object[list.size()][5];
@@ -39,15 +60,17 @@ public class DaftarPesananFrame extends JFrame {
         for (int i = 0; i < list.size(); i++) {
             Pesanan p = list.get(i);
 
+            // Hitung total jumlah item
             int totalItem = p.getDetailPesanan().stream()
                     .mapToInt(DetailPesanan::getJumlahValue)
                     .sum();
 
+            // Hitung total harga
             double totalHarga = p.getDetailPesanan().stream()
                     .mapToDouble(dp -> dp.getJumlahValue() * dp.getItem().getHarga())
                     .sum();
 
-            // buat string detail item
+            // Buat string detail item
             StringBuilder sb = new StringBuilder();
             for (DetailPesanan dp : p.getDetailPesanan()) {
                 sb.append(dp.getItem().getNama())

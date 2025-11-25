@@ -4,17 +4,33 @@ import java.awt.*;
 import models.meja.Meja;
 import services.MejaService;
 
-// frame untuk bersihkan meja
+/**
+ * Frame untuk membersihkan meja restoran.
+ * Menampilkan grid tombol meja dengan warna berdasarkan status kebersihan dan ketersediaan.
+ * Pelayan dapat memilih meja untuk dibersihkan dengan mengklik tombol yang sesuai.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see MejaService
+ * @see Meja
+ */
 public class BersihkanMejaFrame extends JFrame {
     private MejaService mejaService;
 
-    // constructor
+    /**
+     * Constructor untuk BersihkanMejaFrame.
+     * 
+     * @param mejaService service untuk mengelola operasi meja
+     */
     public BersihkanMejaFrame(MejaService mejaService) {
         this.mejaService = mejaService;
         initializeUI();
     }
 
-    // inisialisasi UI
+    /**
+     * Menginisialisasi komponen UI frame.
+     * Membuat grid tombol untuk setiap meja dengan warna berdasarkan status.
+     */
     private void initializeUI() {
         setTitle("Pilih Meja untuk Dibersihkan");
         setSize(600, 400);
@@ -45,7 +61,16 @@ public class BersihkanMejaFrame extends JFrame {
         add(panel);
     }
 
-    // dapatkan warna berdasarkan status meja
+    /**
+     * Menentukan warna tombol berdasarkan status meja.
+     * 
+     * @param m objek Meja yang akan dicek statusnya
+     * @return Color yang merepresentasikan status meja:
+     *         - HIJAU: Tersedia dan bersih
+     *         - ORANYE: Tersedia tapi kotor
+     *         - KUNING: Dipesan tapi bersih  
+     *         - MERAH: Dipesan dan kotor
+     */
     private Color getWarna(Meja m) {
         boolean tersedia = (m.getKetersediaan().toString().equals("TERSEDIA"));
         boolean bersih = (m.getKebersihan().toString().equals("BERSIH"));

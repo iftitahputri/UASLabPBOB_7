@@ -8,7 +8,20 @@ import services.MenuService;
 import services.MejaService;
 import services.PesananService;
 
-// frame untuk pilih menu
+/**
+ * Frame untuk memilih menu dan membuat pesanan baru.
+ * Menampilkan daftar menu dalam bentuk tombol yang dapat diklik,
+ * dengan fitur input jumlah dan catatan untuk setiap item.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see MenuService
+ * @see MejaService
+ * @see PesananService
+ * @see MenuItem
+ * @see Pesanan
+ * @see DetailPesanan
+ */
 public class PilihMenuFrame extends JFrame {
     private MenuService menuService;
     private MejaService mejaService;
@@ -16,7 +29,14 @@ public class PilihMenuFrame extends JFrame {
     private int nomorMeja;
     private Pesanan pesananTemp;
 
-    // constructor
+    /**
+     * Constructor untuk PilihMenuFrame.
+     * 
+     * @param menuService service untuk mengakses data menu
+     * @param mejaService service untuk mengakses data meja
+     * @param pesananService service untuk mengelola pesanan
+     * @param nomorMeja nomor meja yang akan membuat pesanan
+     */
     public PilihMenuFrame(MenuService menuService, MejaService mejaService,
         PesananService pesananService, int nomorMeja) {
         this.menuService = menuService;
@@ -28,7 +48,10 @@ public class PilihMenuFrame extends JFrame {
         initializeUI();
     }
 
-    // inisialisasi UI
+    /**
+     * Menginisialisasi komponen UI frame.
+     * Membuat daftar tombol menu dan tombol simpan pesanan.
+     */
     private void initializeUI() {
         setTitle("Pilih Menu");
         setSize(600, 500);
@@ -52,7 +75,12 @@ public class PilihMenuFrame extends JFrame {
         setVisible(true);
     }
 
-    // method tambah item ke pesanan
+    /**
+     * Menambahkan item menu ke pesanan sementara.
+     * Menampilkan dialog untuk input jumlah dan catatan.
+     * 
+     * @param item item menu yang dipilih
+     */
     private void tambahItem(MenuItem item) {
         // input jumlah + catatan
         JPanel inputPanel = new JPanel(new GridLayout(2, 2, 5, 5));
@@ -90,13 +118,17 @@ public class PilihMenuFrame extends JFrame {
                 (catatan.isEmpty() ? "" : "\nCatatan: " + catatan));
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Jumlah harus angka!"); // validasi input jumlah
+            JOptionPane.showMessageDialog(this, "Jumlah harus angka!");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage()); // tangani error lain
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
         }
     }
 
-    // method simpan pesanan
+    /**
+     * Menyimpan pesanan sementara ke sistem.
+     * Memvalidasi apakah pesanan tidak kosong sebelum disimpan.
+     * Mengubah status meja menjadi KOTOR setelah pesanan disimpan.
+     */
     private void simpanPesanan() {
         if (pesananTemp.getDetailPesanan().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Pesanan kosong!");

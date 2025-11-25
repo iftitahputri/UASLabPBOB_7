@@ -2,7 +2,14 @@ import java.util.Scanner;
 import models.auth.Akun;
 import services.*;
 
-// class utama untuk sistem restoran
+/**
+ * Sistem utama restoran yang mengkoordinasi semua service dan menyediakan interface CLI.
+ * Class ini bertindak sebagai facade untuk seluruh operasi sistem restoran.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @since 2025
+ */
 public class RestaurantSystem {
     private MenuService menuService;
     private MejaService mejaService;
@@ -11,7 +18,10 @@ public class RestaurantSystem {
     private PembayaranService pembayaranService;
     private Scanner scanner;
 
-    // constructor
+    /**
+     * Constructor utama yang menginisialisasi semua service yang diperlukan.
+     * Service-service ini akan digunakan throughout the application.
+     */
     public RestaurantSystem() {
         this.scanner = new Scanner(System.in);
         this.menuService = new MenuService();
@@ -21,7 +31,13 @@ public class RestaurantSystem {
         this.pembayaranService = new PembayaranService(pesananService, scanner);
     }
 
-// ==================== MAIN MENU ====================
+    // ==================== MAIN MENU ====================
+    
+    /**
+     * Method utama yang menjalankan sistem restoran.
+     * Menampilkan menu utama dan menangani navigasi berdasarkan pilihan user.
+     * Loop terus menerus sampai user memilih untuk keluar.
+     */
     public void mulai() {
         while (true) {
             System.out.println("\n=== SISTEM RESTORAN ===");
@@ -58,9 +74,14 @@ public class RestaurantSystem {
         }
     }
 
-// ==================== MENU PELANGGAN ====================
+    // ==================== MENU PELANGGAN ====================
+    
+    /**
+     * Menu untuk pengguna biasa (pelanggan).
+     * Menampilkan status meja dan menu restoran.
+     * Pelanggan dapat memanggil pelayan jika diperlukan.
+     */
     private void menuUser() {
-
         System.out.println("\n=== MEJA BERSIH & TERSEDIA ===");
         mejaService.tampilkanMejaTersedia();
 
@@ -80,7 +101,12 @@ public class RestaurantSystem {
         }
     }
 
-// ==================== MENU PELAYAN ====================
+    // ==================== MENU PELAYAN ====================
+    
+    /**
+     * Menu khusus untuk staff pelayan.
+     * Memberikan akses ke fungsi-fungsi yang berkaitan dengan pelayanan meja.
+     */
     private void menuPelayan() {
         while (true) {
             System.out.println("\n=== MENU PELAYAN ===");
@@ -116,13 +142,18 @@ public class RestaurantSystem {
         }
     }
 
-// ==================== MENU KOKI ====================
+    // ==================== MENU KOKI ====================
+    
+    /**
+     * Menu khusus untuk koki.
+     * Memungkinkan koki melihat pesanan yang perlu dimasak dan update status.
+     */
     private void menuKoki() {
         while (true) {
             System.out.println("\n=== MENU KOKI ===");
             System.out.println("1. Lihat Pesanan untuk Dimasak");
             System.out.println("2. Update Status Pesanan Dimasak");
-            System.out.println("2. Update Status Pesanan Selesai");
+            System.out.println("3. Update Status Pesanan Selesai");
             System.out.println("0. Kembali");
             System.out.print("Pilih: ");
 
@@ -153,7 +184,12 @@ public class RestaurantSystem {
         }
     }
 
-// ==================== MENU KASIR ====================
+    // ==================== MENU KASIR ====================
+    
+    /**
+     * Menu khusus untuk kasir.
+     * Menangani proses pembayaran dan pencetakan struk.
+     */
     private void menuKasir() {
         while (true) {
             System.out.println("\n=== MENU KASIR ===");
@@ -180,7 +216,13 @@ public class RestaurantSystem {
         }
     }
 
-// ==================== AUTHENTICATION ====================
+    // ==================== AUTHENTICATION ====================
+    
+    /**
+     * Proses login untuk manager.
+     * 
+     * @implNote Memvalidasi kredensial manager dan memberikan akses ke menu manager jika berhasil
+     */
     private void loginManager() {
         System.out.print("Username: ");
         String u = scanner.nextLine();
@@ -194,6 +236,9 @@ public class RestaurantSystem {
         }
     }
 
+    /**
+     * Menu khusus untuk manager dengan akses ke fungsi administrasi.
+     */
     private void menuManager() {
         while (true) {
             System.out.println("\n=== MENU MANAGER ===");
@@ -221,6 +266,9 @@ public class RestaurantSystem {
         }
     }
 
+    /**
+     * Mengubah kredensial akun manager.
+     */
     private void ubahAkunManager() {
         System.out.print("Username baru: ");
         String u = scanner.nextLine();
@@ -231,6 +279,9 @@ public class RestaurantSystem {
         System.out.println("Akun manager diperbarui.");
     }
 
+    /**
+     * Proses pendaftaran akun baru untuk pegawai.
+     */
     private void daftarAkunPegawai() {
         System.out.println("\n=== DAFTAR AKUN PEGAWAI ===");
 
@@ -246,6 +297,10 @@ public class RestaurantSystem {
         authService.daftarAkunPegawai(id, username, password);
     }
 
+    /**
+     * Proses login untuk pegawai (pelayan, koki, kasir).
+     * Mengarahkan ke menu yang sesuai berdasarkan role pegawai.
+     */
     private void loginPegawai() {
         System.out.print("Username: ");
         String u = scanner.nextLine();
@@ -274,35 +329,97 @@ public class RestaurantSystem {
         }
     }
 
-// ==================== AUTHENTICATION FOR GUI ====================
+    // ==================== AUTHENTICATION FOR GUI ====================
+    
+    /**
+     * Method login manager untuk integrasi dengan GUI.
+     * 
+     * @param u username manager
+     * @param p password manager
+     * @return true jika login berhasil, false jika gagal
+     */
     public boolean loginManagerGUI(String u, String p) {
         return authService.loginManager(u, p);
     }
 
+    /**
+     * Method login pegawai untuk integrasi dengan GUI.
+     * 
+     * @param u username pegawai
+     * @param p password pegawai
+     * @return objek Akun jika login berhasil, null jika gagal
+     */
     public Akun loginPegawaiGUI(String u, String p) {
         return authService.loginPegawai(u, p);
     }
 
+    /**
+     * Mendapatkan role pegawai berdasarkan ID.
+     * 
+     * @param idPegawai ID pegawai yang dicari
+     * @return role pegawai sebagai String
+     */
     public String getRolePegawai(String idPegawai) {
         return authService.getRoleFromId(idPegawai);
     }
 
+    /**
+     * Mengupdate kredensial manager dari GUI.
+     * 
+     * @param u username baru
+     * @param p password baru
+     */
     public void updateAkunManagerGUI(String u, String p) {
         authService.updateAkunManager(u, p);
     }
 
-// ==================== GETTERS FOR GUI INTEGRATION ====================
+    // ==================== GETTERS FOR GUI INTEGRATION ====================
+    
+    /**
+     * @return service untuk manajemen menu
+     */
     public MenuService getMenuService() { return menuService; }
+    
+    /**
+     * @return service untuk manajemen meja
+     */
     public MejaService getMejaService() { return mejaService; }
+    
+    /**
+     * @return service untuk manajemen pesanan
+     */
     public PesananService getPesananService() { return pesananService; }
+    
+    /**
+     * @return service untuk authentication
+     */
     public AuthService getAuthService() { return authService; }
+    
+    /**
+     * @return service untuk proses pembayaran
+     */
     public PembayaranService getPembayaranService() { return pembayaranService; }
 
+    /**
+     * Menambah pegawai baru dari GUI.
+     * 
+     * @param roleStr role pegawai (KOKI, PELAYAN, KASIR)
+     * @param nama nama lengkap pegawai
+     * @param email email pegawai
+     * @param hp nomor telepon pegawai
+     * @return true jika berhasil, false jika gagal
+     */
     public boolean tambahPegawaiGUI(String roleStr, String nama, String email, String hp) {
         return authService.tambahPegawaiGUI(roleStr, nama, email, hp);
     }
 
-// ==================== MAIN METHOD ====================
+    // ==================== MAIN METHOD ====================
+    
+    /**
+     * Method utama untuk menjalankan aplikasi restoran.
+     * 
+     * @param args command line arguments (tidak digunakan)
+     */
     public static void main(String[] args) {
         RestaurantSystem system = new RestaurantSystem();
         system.mulai();

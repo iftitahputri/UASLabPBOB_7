@@ -1,6 +1,8 @@
 package models.meja;
 
-// enum status kebersihan meja
+/**
+ * Status kebersihan meja.
+ */
 public enum KebersihanMeja {
     BERSIH,
     KOTOR

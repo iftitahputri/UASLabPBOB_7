@@ -1,5 +1,16 @@
+/**
+ * Frame untuk memilih meja sebelum membuat pesanan.
+ * Menampilkan daftar meja dengan status kebersihan dan ketersediaan.
+ * 
+ * @author Kelompok_7 
+ * @version 1.0
+ * @see BuatPesananFrame
+ * @see MejaService
+ */
+
 import javax.swing.*;
 import java.awt.*;
+
 import services.MenuService;
 import services.MejaService;
 import services.PesananService;

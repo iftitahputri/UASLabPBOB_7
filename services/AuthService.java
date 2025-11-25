@@ -8,7 +8,17 @@ import java.util.List;
 import java.util.Scanner;
 import Util.CSVUtils;
 
-// class untuk autentikasi
+/**
+ * Service untuk mengelola autentikasi dan data pegawai.
+ * Menangani login manager, pendaftaran akun pegawai, dan manajemen data pegawai.
+ * Data disimpan dalam file CSV terpisah untuk manager, akun pegawai, dan data pegawai.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see Akun
+ * @see RolePegawai
+ * @see CSVUtils
+ */
 public class AuthService {
     // masing masing data disimpan di csv
     private static final String FILE_MANAGER = "akun_manager.csv";
@@ -16,34 +26,49 @@ public class AuthService {
     private static final String FILE_DATA_PEGAWAI = "pegawai.csv";
     private Scanner scanner;
 
-    // constructor
+    /**
+     * Constructor untuk AuthService.
+     * 
+     * @param scanner scanner untuk input user
+     */
     public AuthService(Scanner scanner) {
         this.scanner = scanner;
-        initDefaultManager(); //  akun manager default kalau belum ada
+        initDefaultManager(); // akun manager default kalau belum ada
     }
 
-    // tambah pegawai untuk GUI
+    /**
+     * Menambahkan pegawai baru melalui GUI interface.
+     * 
+     * @param roleStr role pegawai (PELAYAN, KOKI, KASIR)
+     * @param nama nama lengkap pegawai
+     * @param email email pegawai
+     * @param hp nomor telepon pegawai
+     * @return true jika berhasil, false jika gagal
+     */
     public boolean tambahPegawaiGUI(String roleStr, String nama, String email, String hp) {
-    try {
-        RolePegawai role;
-        switch (roleStr) {
-            case "PELAYAN": role = RolePegawai.PELAYAN; break;
-            case "KOKI": role = RolePegawai.KOKI; break;
-            case "KASIR": role = RolePegawai.KASIR; break;
-            default: return false;
+        try {
+            RolePegawai role;
+            switch (roleStr) {
+                case "PELAYAN": role = RolePegawai.PELAYAN; break;
+                case "KOKI": role = RolePegawai.KOKI; break;
+                case "KASIR": role = RolePegawai.KASIR; break;
+                default: return false;
+            }
+
+            String id = generateIdPegawai(role);
+            CSVUtils.appendCSV(FILE_DATA_PEGAWAI, id, role.name(), nama, email, hp);
+            System.out.println("✅ Pegawai berhasil ditambahkan dengan ID: " + id);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-
-        String id = generateIdPegawai(role);
-        CSVUtils.appendCSV(FILE_DATA_PEGAWAI, id, role.name(), nama, email, hp);
-        System.out.println("✅ Pegawai berhasil ditambahkan dengan ID: " + id);
-        return true;
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
     }
-}
 
-    // buat akun manager default kalau file kosong
+    /**
+     * Membuat akun manager default jika file manager kosong.
+     * Akun default: username="admin", password="admin123"
+     */
     private void initDefaultManager() {
         List<String[]> rows = CSVUtils.readCSV(FILE_MANAGER);
         if (rows.isEmpty()) {
@@ -52,7 +77,13 @@ public class AuthService {
         }
     }
 
-    // method login manager
+    /**
+     * Memvalidasi login manager.
+     * 
+     * @param username username manager
+     * @param password password manager
+     * @return true jika kredensial valid, false jika tidak valid
+     */
     public boolean loginManager(String username, String password) {
         List<String[]> rows = CSVUtils.readCSV(FILE_MANAGER);
         if (rows.isEmpty()) return false;
@@ -61,7 +92,12 @@ public class AuthService {
         return akun[0].equals(username) && akun[1].equals(password);
     }
 
-    // method update akun manager
+    /**
+     * Mengupdate kredensial akun manager.
+     * 
+     * @param usernameBaru username baru untuk manager
+     * @param passwordBaru password baru untuk manager
+     */
     public void updateAkunManager(String usernameBaru, String passwordBaru) {
         List<String[]> list = new ArrayList<>();
         list.add(new String[]{usernameBaru, passwordBaru});
@@ -69,7 +105,14 @@ public class AuthService {
         System.out.println("Akun manager berhasil diupdate");
     }
 
-    // method daftar akun pegawai
+    /**
+     * Mendaftarkan akun baru untuk pegawai.
+     * 
+     * @param idPegawai ID pegawai yang valid
+     * @param username username untuk login
+     * @param password password untuk login
+     * @return true jika pendaftaran berhasil, false jika gagal
+     */
     public boolean daftarAkunPegawai(String idPegawai, String username, String password) {
         // cek validasi id
         if (!isIdPegawaiValid(idPegawai)) {
@@ -94,7 +137,13 @@ public class AuthService {
         return true;
     }
 
-    // method login pegawai
+    /**
+     * Memvalidasi login pegawai.
+     * 
+     * @param username username pegawai
+     * @param password password pegawai
+     * @return objek Akun jika login berhasil, null jika gagal
+     */
     public Akun loginPegawai(String username, String password) {
         for (String[] row : CSVUtils.readCSV(FILE_PEGAWAI)) {
             if (row[1].equals(username) && row[2].equals(password)) {
@@ -104,7 +153,10 @@ public class AuthService {
         return null; 
     }
 
-    // method tambah data pegawai
+    /**
+     * Menambahkan data pegawai baru melalui CLI interface.
+     * Men-generate ID otomatis berdasarkan role.
+     */
     public void tambahPegawai() {
         System.out.println("Pilih Role:");
         System.out.println("1. Pelayan");
@@ -141,7 +193,9 @@ public class AuthService {
         System.out.println("Pegawai berhasil ditambahkan dengan ID: " + id);
     }
 
-    // method lihat data pegawai
+    /**
+     * Menampilkan semua data pegawai dalam format tabel.
+     */
     public void lihatDataPegawai() {
         System.out.println("\n=== DATA PEGAWAI ===");
 
@@ -149,7 +203,7 @@ public class AuthService {
         List<String[]> data = CSVUtils.readCSV(FILE_DATA_PEGAWAI);
 
         if (data.isEmpty()) {
-            System.out.println("Belum ada data pegawai."); // data kosong
+            System.out.println("Belum ada data pegawai.");
             return;
         }
 
@@ -165,7 +219,12 @@ public class AuthService {
         }
     }
 
-    // validasi id pegawai
+    /**
+     * Memvalidasi apakah ID pegawai ada dalam database.
+     * 
+     * @param idPegawai ID pegawai yang akan divalidasi
+     * @return true jika ID valid, false jika tidak valid
+     */
     private boolean isIdPegawaiValid(String idPegawai) {
         for (String[] row : CSVUtils.readCSV(FILE_DATA_PEGAWAI)) {
             if (row[0].equals(idPegawai)) {
@@ -175,7 +234,12 @@ public class AuthService {
         return false;
     }
 
-    // cek akun pegawai sudah terdaftar
+    /**
+     * Mengecek apakah akun pegawai sudah terdaftar.
+     * 
+     * @param idPegawai ID pegawai yang akan dicek
+     * @return true jika sudah terdaftar, false jika belum
+     */
     private boolean isAkunPegawaiTerdaftar(String idPegawai) {
         for (String[] row : CSVUtils.readCSV(FILE_PEGAWAI)) {
             if (row[0].equals(idPegawai)) {
@@ -185,7 +249,12 @@ public class AuthService {
         return false;
     }
 
-    // cek username sudah terpakai
+    /**
+     * Mengecek apakah username sudah digunakan.
+     * 
+     * @param username username yang akan dicek
+     * @return true jika username sudah digunakan, false jika masih tersedia
+     */
     private boolean isUsernameTerpakai(String username) {
         for (String[] row : CSVUtils.readCSV(FILE_PEGAWAI)) {
             if (row[1].equals(username)) {
@@ -195,7 +264,13 @@ public class AuthService {
         return false;
     }
 
-    // generate id pegawai baru
+    /**
+     * Men-generate ID pegawai baru berdasarkan role.
+     * Format ID: [KODE ROLE]_[NOMOR URUT]
+     * 
+     * @param role role pegawai
+     * @return ID pegawai yang baru
+     */
     private String generateIdPegawai(RolePegawai role) {
         int max = 0;
         for (String[] row : CSVUtils.readCSV(FILE_DATA_PEGAWAI)) {
@@ -212,7 +287,12 @@ public class AuthService {
         return role.getKode() + "_" + String.format("%02d", max + 1);
     }
 
-    // dapatkan role dari id pegawai
+    /**
+     * Mendapatkan role pegawai berdasarkan ID.
+     * 
+     * @param idPegawai ID pegawai
+     * @return role pegawai sebagai String
+     */
     public String getRoleFromId(String idPegawai) {
         if (idPegawai.startsWith("PEL")) return "PELAYAN";
         else if (idPegawai.startsWith("KOK")) return "KOKI";

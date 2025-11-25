@@ -5,8 +5,18 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import models.meja.Meja;
- 
-// class untuk menyimpan pesanan
+
+/**
+ * Class yang merepresentasikan pesanan dalam sistem restoran.
+ * Setiap pesanan terkait dengan meja tertentu dan memiliki daftar detail pesanan.
+ * ID pesanan digenerate secara otomatis dan increment.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see DetailPesanan
+ * @see StatusPesanan
+ * @see Meja
+ */
 public class Pesanan {
     // counter untuk ID pesanan
     private static final AtomicInteger counter = new AtomicInteger(1);
@@ -16,7 +26,11 @@ public class Pesanan {
     private List<DetailPesanan> detailPesanan;
     private Meja meja;
 
-    // constructor
+    /**
+     * Constructor untuk membuat pesanan baru.
+     * 
+     * @param meja meja yang membuat pesanan
+     */
     public Pesanan(Meja meja) {
         this.idPesanan = counter.getAndIncrement();
         this.meja = meja;
@@ -24,12 +38,20 @@ public class Pesanan {
         this.detailPesanan = new ArrayList<>();
     }
 
-    // method tambah detail pesanan
+    /**
+     * Menambahkan detail pesanan ke dalam pesanan.
+     * 
+     * @param detail detail pesanan yang akan ditambahkan
+     */
     public void tambahDetailPesanan(DetailPesanan detail) {
         this.detailPesanan.add(detail);
     }
 
-    // metod hitung total pesanan
+    /**
+     * Menghitung total harga pesanan.
+     * 
+     * @return total harga dari semua item dalam pesanan
+     */
     public double hitungTotal() {
         double total = 0;
         for (DetailPesanan detail : detailPesanan) {
@@ -38,15 +60,46 @@ public class Pesanan {
         return total;
     }
 
-    // getter dan setter
+    /**
+     * Mendapatkan ID pesanan.
+     * 
+     * @return ID pesanan
+     */
     public int getIdPesanan() { return idPesanan; }
+    
+    /**
+     * Mendapatkan status pesanan.
+     * 
+     * @return status pesanan
+     */
     public StatusPesanan getStatus() { return status; }
+    
+    /**
+     * Mendapatkan meja yang terkait dengan pesanan.
+     * 
+     * @return objek Meja
+     */
     public Meja getMeja() { return meja; }
+    
+    /**
+     * Mendapatkan daftar detail pesanan.
+     * 
+     * @return list berisi detail pesanan
+     */
     public List<DetailPesanan> getDetailPesanan() { return detailPesanan; }
+    
+    /**
+     * Mengubah status pesanan.
+     * 
+     * @param status status baru untuk pesanan
+     */
     public void setStatus(StatusPesanan status) { this.status = status; }
 
-
-    // method untuk menampilkan pesanan
+    /**
+     * Menampilkan informasi lengkap pesanan dalam format string.
+     * 
+     * @return string berisi ID pesanan, meja, status, detail item, dan total harga
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

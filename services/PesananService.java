@@ -11,14 +11,29 @@ import models.pesanan.DetailPesanan;
 import models.pesanan.Pesanan;
 import models.pesanan.StatusPesanan;
 
-// class untuk service pesanan
+/**
+ * Service untuk mengelola semua operasi terkait pesanan.
+ * Menangani pembuatan, pencarian, update status, dan retrieval pesanan.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see Pesanan
+ * @see DetailPesanan
+ * @see StatusPesanan
+ */
 public class PesananService {
     private List<Pesanan> daftarPesanan;
     private MenuService menuService;
     private MejaService mejaService;
     private Scanner scanner;
 
-    // constructor
+    /**
+     * Constructor dengan scanner untuk input user.
+     * 
+     * @param menuService service untuk mengakses data menu
+     * @param mejaService service untuk mengakses data meja
+     * @param scanner scanner untuk input user
+     */
     public PesananService(MenuService menuService, MejaService mejaService, Scanner scanner) {
         this.daftarPesanan = new ArrayList<>();
         this.menuService = menuService;
@@ -26,14 +41,23 @@ public class PesananService {
         this.scanner = scanner;
     }
 
-    // constructor tanpa scanner
+    /**
+     * Constructor tanpa scanner, digunakan untuk GUI.
+     * 
+     * @param menuService service untuk mengakses data menu
+     * @param mejaService service untuk mengakses data meja
+     */
     public PesananService(MenuService menuService, MejaService mejaService) {
         this.daftarPesanan = new ArrayList<>();
         this.menuService = menuService;
         this.mejaService = mejaService;
     }
 
-    // method buat pesanan baru
+    /**
+     * Membuat pesanan baru untuk meja tertentu.
+     * Proses meliputi pemilihan meja, pemilihan menu, dan input detail pesanan.
+     * Setelah pesanan dibuat, status meja diubah menjadi KOTOR.
+     */
     public void buatPesanan() {
         System.out.print("Masukkan nomor meja yang ingin memesan: ");
         int nomorMeja = scanner.nextInt();
@@ -88,7 +112,10 @@ public class PesananService {
         System.out.println(pesananBaru);
     }
 
-    // method lihat semua pesanan
+    /**
+     * Menampilkan semua pesanan yang ada dalam sistem.
+     * Digunakan oleh pelayan untuk melihat seluruh pesanan.
+     */
     public void lihatPesananPelayan() {
         System.out.println("=== Semua Pesanan ===");
         for (Pesanan p : daftarPesanan) {
@@ -96,7 +123,10 @@ public class PesananService {
         }
     }
 
-    // method lihat pesanan untuk koki
+    /**
+     * Menampilkan pesanan yang perlu dimasak oleh koki.
+     * Hanya menampilkan pesanan dengan status DIPESAN atau DIMASAK.
+     */
     public void lihatPesananKoki() {
         System.out.println("=== Pesanan untuk Dimasak ===");
         for (Pesanan p : daftarPesanan) {
@@ -106,7 +136,10 @@ public class PesananService {
         }
     }
 
-    // method lihat pesanan untuk kasir
+    /**
+     * Menampilkan pesanan yang siap untuk dibayar.
+     * Hanya menampilkan pesanan dengan status SELESAI.
+     */
     public void lihatPesananKasir() {
         System.out.println("=== Pesanan Siap Bayar ===");
         for (Pesanan p : daftarPesanan) {
@@ -116,7 +149,11 @@ public class PesananService {
         }
     }
 
-    // method dapatkan pesanan selesai
+    /**
+     * Mendapatkan daftar pesanan yang sudah selesai (status SELESAI).
+     * 
+     * @return List berisi pesanan dengan status SELESAI
+     */
     public List<Pesanan> getPesananSelesai() {
         List<Pesanan> pesananSelesai = new ArrayList<>();
         for (Pesanan p : daftarPesanan) {
@@ -127,7 +164,12 @@ public class PesananService {
         return pesananSelesai;  
     }
 
-    // method update status pesanan koki dipesan > dimasak
+    /**
+     * Mengupdate status pesanan dari DIPESAN menjadi DIMASAK.
+     * Hanya bisa diupdate jika status saat ini adalah DIPESAN.
+     * 
+     * @param idPesanan ID pesanan yang akan diupdate
+     */
     public void updateStatusKokiMasak(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
             if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.DIPESAN) {
@@ -138,7 +180,12 @@ public class PesananService {
         }
     }
     
-    // method update status pesanan koki dimasak > selesai
+    /**
+     * Mengupdate status pesanan dari DIMASAK menjadi SELESAI.
+     * Hanya bisa diupdate jika status saat ini adalah DIMASAK.
+     * 
+     * @param idPesanan ID pesanan yang akan diupdate
+     */
     public void updateStatusKokiSelesai(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
             if (p.getIdPesanan() == idPesanan && p.getStatus() == StatusPesanan.DIMASAK) {
@@ -148,7 +195,12 @@ public class PesananService {
         }
     }
 
-    // method cari pesanan berdasarkan id
+    /**
+     * Mencari pesanan berdasarkan ID.
+     * 
+     * @param idPesanan ID pesanan yang dicari
+     * @return objek Pesanan jika ditemukan, null jika tidak ditemukan
+     */
     public Pesanan cariPesananById(int idPesanan) {
         for (Pesanan p : daftarPesanan) {
             if (p.getIdPesanan() == idPesanan) {
@@ -158,7 +210,12 @@ public class PesananService {
         return null;
     }
 
-    // method update status pesanan
+    /**
+     * Mengupdate status pesanan ke status baru.
+     * 
+     * @param idPesanan ID pesanan yang akan diupdate
+     * @param statusBaru status baru untuk pesanan
+     */
     public void updateStatus(int idPesanan, StatusPesanan statusBaru) {
         Pesanan pesanan = cariPesananById(idPesanan);
         if (pesanan != null) {
@@ -166,7 +223,12 @@ public class PesananService {
         }
     }
 
-    // method set pesanan lunas
+    /**
+     * Mengubah status pesanan menjadi LUNAS.
+     * Digunakan setelah pembayaran berhasil.
+     * 
+     * @param idPesanan ID pesanan yang sudah dibayar
+     */
     public void setPesananLunas(int idPesanan) {
         Pesanan pesanan = cariPesananById(idPesanan);
         if (pesanan != null) {
@@ -175,6 +237,10 @@ public class PesananService {
         }
     }
 
-    // getter
+    /**
+     * Mendapatkan daftar semua pesanan dalam sistem.
+     * 
+     * @return List berisi semua pesanan
+     */
     public List<Pesanan> getDaftarPesanan() { return daftarPesanan; }
 }

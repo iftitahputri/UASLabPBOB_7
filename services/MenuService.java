@@ -12,18 +12,35 @@ import models.menu.Makanan;
 import models.menu.MenuItem;
 import models.menu.Minuman;
 
-// class untuk service menu
+/**
+ * Service untuk mengelola data menu restoran.
+ * Menangani loading, penyimpanan, dan retrieval data menu dari file CSV.
+ * Mendukung kedua tipe menu: Makanan dan Minuman.
+ * 
+ * @author Kelompok_7 
+ * @version 1.0
+ * @see MenuItem
+ * @see Makanan
+ * @see Minuman
+ */
 public class MenuService {
     private List<MenuItem> daftarMenu;
-    private static final String FILE_MENU = "menu.csv"; // disimpan di menu.csv
+    private static final String FILE_MENU = "menu.csv";
 
-    // constructor
+    /**
+     * Constructor untuk MenuService.
+     * Menginisialisasi daftar menu dan memuat data dari CSV.
+     * Jika CSV tidak ada, akan membuat menu default.
+     */
     public MenuService() {
         this.daftarMenu = new ArrayList<>();
         loadData();
     }
 
-    // load data dari csv
+    /**
+     * Memuat data menu dari sistem.
+     * Pertama mencoba load dari CSV, jika gagal akan membuat menu default.
+     */
     private void loadData() {
         loadMenuFromCSV();
 
@@ -35,7 +52,13 @@ public class MenuService {
         }
     }
 
-    // method load menu dari csv
+    /**
+     * Memuat data menu dari file CSV.
+     * Membaca file line by line dan mengkonversi ke objek MenuItem.
+     * 
+     * @implNote Format CSV: ID,Nama,Harga,Tipe,Tersedia,Attrib1,Attrib2
+     * @throws IOException jika terjadi error membaca file
+     */
     private void loadMenuFromCSV() {
         daftarMenu.clear(); 
 
@@ -86,6 +109,10 @@ public class MenuService {
         }
     }
 
+    /**
+     * Membuat file CSV dengan menu default jika file tidak ditemukan.
+     * Menu default termasuk beberapa makanan dan minuman umum.
+     */
     private void createDefaultCSVMenu() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_MENU))) {
 
@@ -111,6 +138,12 @@ public class MenuService {
         }
     }
 
+    /**
+     * Menyimpan data menu ke file CSV.
+     * Menulis semua item menu ke file dengan format yang sesuai.
+     * 
+     * @throws IOException jika terjadi error menulis file
+     */
     public void saveMenuToCSV() {
         try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_MENU))) {
             writer.println("ID,Nama,Harga,Tipe,Tersedia,Attrib1,Attrib2");
@@ -143,6 +176,10 @@ public class MenuService {
         }
     }
 
+    /**
+     * Menampilkan daftar menu ke console dengan format tabel.
+     * Menampilkan semua informasi menu termasuk atribut khusus.
+     */
     public void tampilkanMenu() {
         System.out.println("\n=== DAFTAR MENU ===");
         System.out.printf("%-5s %-20s %-10s %-10s %-10s %-15s %s\n",
@@ -164,6 +201,12 @@ public class MenuService {
         }
     }
 
+    /**
+     * Mencari menu berdasarkan ID.
+     * 
+     * @param id ID menu yang dicari
+     * @return MenuItem jika ditemukan, null jika tidak ditemukan
+     */
     public MenuItem cariMenuById(String id) {
         for (MenuItem menu : daftarMenu) {
             if (menu.getId().equalsIgnoreCase(id)) {
@@ -173,6 +216,10 @@ public class MenuService {
         return null;
     }
 
+    /**
+     * Mendapatkan daftar semua menu.
+     * 
+     * @return List berisi semua MenuItem
+     */
     public List<MenuItem> getDaftarMenu() { return daftarMenu; }
-
 }

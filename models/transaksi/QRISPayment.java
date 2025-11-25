@@ -1,19 +1,41 @@
 package models.transaksi;
 
-// class untuk metode pembayaran QRIS
+/**
+ * Implementasi pembayaran menggunakan QRIS (Quick Response Code Indonesian Standard).
+ * Mengasumsikan pembayaran QRIS selalu berhasil untuk simulasi.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see Pembayaran
+ * @see CashPayment
+ * @see CardPayment
+ */
 public class QRISPayment implements Pembayaran {
     private double jumlahBayar;
 
-    // constructor
+    /**
+     * Constructor untuk QRISPayment.
+     * 
+     * @param jumlahBayar jumlah yang harus dibayar
+     */
     public QRISPayment(double jumlahBayar) {
         this.jumlahBayar = jumlahBayar;
     }
 
-    // getter implementasi dari interface
+    /**
+     * Mendapatkan jumlah yang harus dibayar.
+     * 
+     * @return jumlah pembayaran
+     */
     @Override
     public double getJumlahBayar() { return jumlahBayar; }
 
-    // method proses pembayaran implementasi dari interface
+    /**
+     * Memproses pembayaran dengan QRIS.
+     * Untuk simulasi, pembayaran QRIS diasumsikan selalu berhasil.
+     * 
+     * @return true (pembayaran berhasil)
+     */
     @Override
     public boolean prosesPembayaran() {
         System.out.println("Pembayaran QRIS diproses...");

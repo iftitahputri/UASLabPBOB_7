@@ -2,20 +2,43 @@ package models.transaksi;
 
 import java.util.Scanner;
 
-// class untuk metode pembayaran cash
+/**
+ * Implementasi pembayaran menggunakan uang tunai (cash).
+ * Meminta input uang dari user dan menghitung kembalian.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see Pembayaran
+ * @see CardPayment
+ * @see QRISPayment
+ */
 public class CashPayment implements Pembayaran {
     private double jumlahBayar;
 
-    // constructor
+    /**
+     * Constructor untuk CashPayment.
+     * 
+     * @param jumlahBayar jumlah yang harus dibayar
+     */
     public CashPayment(double jumlahBayar) {
         this.jumlahBayar = jumlahBayar;
     }
 
-    // getter implementasi dari interface
+    /**
+     * Mendapatkan jumlah yang harus dibayar.
+     * 
+     * @return jumlah pembayaran
+     */
     @Override
     public double getJumlahBayar() { return jumlahBayar; }
 
-    // method proses pembayaran implementasi dari interface    
+    /**
+     * Memproses pembayaran dengan uang tunai.
+     * Meminta input uang dari user dan memvalidasi kecukupan pembayaran.
+     * Menghitung dan menampilkan kembalian jika uang cukup.
+     * 
+     * @return true jika uang cukup, false jika tidak cukup
+     */
     @Override
     @SuppressWarnings("resource") // nonactive scanner warning
     public boolean prosesPembayaran() {

@@ -13,20 +13,41 @@ import models.transaksi.Pembayaran;
 import models.transaksi.QRISPayment;
 import models.transaksi.Struk;
 
-// class untuk service pembayaran
+/**
+ * Service untuk mengelola proses pembayaran dan pencetakan struk.
+ * Menangani berbagai metode pembayaran (Cash, Card, QRIS) dan manajemen struk.
+ * 
+ * @author Kelompok_7
+ * @version 1.0
+ * @see Pembayaran
+ * @see Struk
+ * @see PesananService
+ */
 public class PembayaranService {
     private PesananService pesananService;
     private Scanner scanner;
     private Map<Integer, Struk> daftarStruk;
 
-    // constructor
+    /**
+     * Constructor untuk PembayaranService.
+     * 
+     * @param pesananService service untuk mengakses data pesanan
+     * @param scanner scanner untuk input user
+     */
     public PembayaranService(PesananService pesananService, Scanner scanner) {
         this.pesananService = pesananService;
         this.scanner = scanner;
         this.daftarStruk = new HashMap<>();
     }
 
-    // method proses pembayaran
+    /**
+     * Memproses pembayaran untuk pesanan yang sudah selesai.
+     * Menampilkan daftar pesanan siap bayar, memilih metode pembayaran,
+     * dan mencetak struk jika pembayaran berhasil.
+     * 
+     * @implNote Hanya pesanan dengan status SELESAI yang bisa dibayar
+     * @see StatusPesanan
+     */
     public void prosesPembayaran() {
         System.out.println("\n=== PROSES PEMBAYARAN ===");
         
@@ -92,7 +113,13 @@ public class PembayaranService {
     
     }
 
-    // method cetak ulang struk
+    /**
+     * Mencetak ulang struk untuk pesanan yang sudah lunas.
+     * Struk diambil dari daftar struk yang tersimpan.
+     * 
+     * @implNote Hanya bisa mencetak ulang struk untuk pesanan dengan status LUNAS
+     * @see Struk
+     */
     public void cetakUlangStruk() {
         System.out.println("\n=== CETAK ULANG STRUK ===");
         

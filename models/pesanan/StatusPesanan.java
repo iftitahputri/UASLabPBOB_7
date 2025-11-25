@@ -1,6 +1,8 @@
 package models.pesanan;
 
-// enum untuk status pesanan
+/**
+ * Status pesanan.
+ */
 public enum StatusPesanan {
     DIPESAN,
     DIMASAK,
