@@ -4,14 +4,17 @@ import java.awt.*;
 import models.meja.Meja;
 import services.MejaService;
 
+// frame untuk bersihkan meja
 public class BersihkanMejaFrame extends JFrame {
     private MejaService mejaService;
 
+    // constructor
     public BersihkanMejaFrame(MejaService mejaService) {
         this.mejaService = mejaService;
         initializeUI();
     }
 
+    // inisialisasi UI
     private void initializeUI() {
         setTitle("Pilih Meja untuk Dibersihkan");
         setSize(600, 400);
@@ -23,25 +26,26 @@ public class BersihkanMejaFrame extends JFrame {
 
         var list = mejaService.getDaftarMeja();
 
+        // buat tombol untuk setiap meja
         for (var meja : list) {
             JButton btn = new JButton("Meja " + meja.getNomorMeja());
             Color warna = getWarna(meja);
             btn.setBackground(warna);
 
             btn.addActionListener(e -> {
-                mejaService.bersihkanMejaGUI(meja.getNomorMeja());
+                mejaService.bersihkanMejaGUI(meja.getNomorMeja()); // bersihkan meja
                 JOptionPane.showMessageDialog(this,
                         "Meja " + meja.getNomorMeja() + " berhasil dibersihkan!");
-                this.dispose();
-                new BersihkanMejaFrame(mejaService).setVisible(true);
+                this.dispose(); // tutup frame setelah dibersihkan
             });
 
-            panel.add(btn);
+            panel.add(btn); // tambahkan tombol ke panel
         }
 
         add(panel);
     }
 
+    // dapatkan warna berdasarkan status meja
     private Color getWarna(Meja m) {
         boolean tersedia = (m.getKetersediaan().toString().equals("TERSEDIA"));
         boolean bersih = (m.getKebersihan().toString().equals("BERSIH"));
@@ -49,6 +53,6 @@ public class BersihkanMejaFrame extends JFrame {
         if (tersedia && bersih) return Color.GREEN;
         if (tersedia && !bersih) return Color.ORANGE;
         if (!tersedia && bersih) return Color.YELLOW;
-        return Color.RED;  // DIPESAN + KOTOR
+        return Color.RED;  // dipesan + kotor
     }
 }
