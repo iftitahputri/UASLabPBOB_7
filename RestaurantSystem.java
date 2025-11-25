@@ -2,6 +2,7 @@ import java.util.Scanner;
 import models.auth.Akun;
 import services.*;
 
+// class utama untuk sistem restoran
 public class RestaurantSystem {
     private MenuService menuService;
     private MejaService mejaService;
@@ -10,6 +11,7 @@ public class RestaurantSystem {
     private PembayaranService pembayaranService;
     private Scanner scanner;
 
+    // constructor
     public RestaurantSystem() {
         this.scanner = new Scanner(System.in);
         this.menuService = new MenuService();
@@ -19,7 +21,7 @@ public class RestaurantSystem {
         this.pembayaranService = new PembayaranService(pesananService, scanner);
     }
 
-    // ==================== MAIN MENU ====================
+// ==================== MAIN MENU ====================
     public void mulai() {
         while (true) {
             System.out.println("\n=== SISTEM RESTORAN ===");
@@ -56,7 +58,7 @@ public class RestaurantSystem {
         }
     }
 
-    // ==================== MENU USER (PELANGGAN) ====================
+// ==================== MENU PELANGGAN ====================
     private void menuUser() {
 
         System.out.println("\n=== MEJA BERSIH & TERSEDIA ===");
@@ -78,7 +80,7 @@ public class RestaurantSystem {
         }
     }
 
-    // ==================== MENU PELAYAN ====================
+// ==================== MENU PELAYAN ====================
     private void menuPelayan() {
         while (true) {
             System.out.println("\n=== MENU PELAYAN ===");
@@ -114,7 +116,7 @@ public class RestaurantSystem {
         }
     }
 
-    // ==================== MENU KOKI ====================
+// ==================== MENU KOKI ====================
     private void menuKoki() {
         while (true) {
             System.out.println("\n=== MENU KOKI ===");
@@ -151,7 +153,7 @@ public class RestaurantSystem {
         }
     }
 
-    // ==================== MENU KASIR ====================
+// ==================== MENU KASIR ====================
     private void menuKasir() {
         while (true) {
             System.out.println("\n=== MENU KASIR ===");
@@ -178,7 +180,7 @@ public class RestaurantSystem {
         }
     }
 
-    // ==================== AUTHENTICATION ====================
+// ==================== AUTHENTICATION ====================
     private void loginManager() {
         System.out.print("Username: ");
         String u = scanner.nextLine();
@@ -272,7 +274,7 @@ public class RestaurantSystem {
         }
     }
 
-    // ==================== AUTHENTICATION FOR GUI ====================
+// ==================== AUTHENTICATION FOR GUI ====================
     public boolean loginManagerGUI(String u, String p) {
         return authService.loginManager(u, p);
     }
@@ -289,34 +291,18 @@ public class RestaurantSystem {
         authService.updateAkunManager(u, p);
     }
 
-    // =================================================== GUI Integration Zone
-    // ===========================================
-    // ==================== GETTERS FOR GUI INTEGRATION ====================
-    public MenuService getMenuService() {
-        return menuService;
-    }
-
-    public MejaService getMejaService() {
-        return mejaService;
-    }
-
-    public PesananService getPesananService() {
-        return pesananService;
-    }
-
-    public AuthService getAuthService() {
-        return authService;
-    }
-
-    public PembayaranService getPembayaranService() {
-        return pembayaranService;
-    }
+// ==================== GETTERS FOR GUI INTEGRATION ====================
+    public MenuService getMenuService() { return menuService; }
+    public MejaService getMejaService() { return mejaService; }
+    public PesananService getPesananService() { return pesananService; }
+    public AuthService getAuthService() { return authService; }
+    public PembayaranService getPembayaranService() { return pembayaranService; }
 
     public boolean tambahPegawaiGUI(String roleStr, String nama, String email, String hp) {
         return authService.tambahPegawaiGUI(roleStr, nama, email, hp);
     }
 
-    // ==================== MAIN METHOD ====================
+// ==================== MAIN METHOD ====================
     public static void main(String[] args) {
         RestaurantSystem system = new RestaurantSystem();
         system.mulai();

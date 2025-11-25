@@ -28,7 +28,7 @@ public class CashPayment implements Pembayaran {
         if (uang >= jumlahBayar) {
             double kembalian = uang - jumlahBayar;
             System.out.printf("Kembalian: Rp %.0f\n", kembalian);
-            System.out.println("✅ Pembayaran berhasil!");
+            System.out.println("Pembayaran berhasil!");
             return true;  // return true kalau berhasil
         } else {
             System.out.println("Uang tidak cukup. Pembayaran gagal!");

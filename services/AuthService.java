@@ -6,16 +6,17 @@ import models.pekerja.RolePegawai;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
 import Util.CSVUtils;
 
-
+// class untuk autentikasi
 public class AuthService {
+    // masing masing data disimpan di csv
     private static final String FILE_MANAGER = "akun_manager.csv";
     private static final String FILE_PEGAWAI = "akun_pegawai.csv";
     private static final String FILE_DATA_PEGAWAI = "pegawai.csv";
     private Scanner scanner;
 
+    // constructor
     public AuthService(Scanner scanner) {
         this.scanner = scanner;
         initDefaultManager(); //  akun manager default kalau belum ada
@@ -47,46 +48,53 @@ public class AuthService {
         List<String[]> rows = CSVUtils.readCSV(FILE_MANAGER);
         if (rows.isEmpty()) {
             CSVUtils.appendCSV(FILE_MANAGER, "admin", "admin123");
-            System.out.println("✅ Akun manager default dibuat: admin/admin123");
+            System.out.println("Akun manager default dibuat: admin/admin123");
         }
     }
 
+    // method login manager
     public boolean loginManager(String username, String password) {
         List<String[]> rows = CSVUtils.readCSV(FILE_MANAGER);
         if (rows.isEmpty()) return false;
         
-        String[] akun = rows.get(0); // Ambil data pertama
+        String[] akun = rows.get(0); // ambil data pertama
         return akun[0].equals(username) && akun[1].equals(password);
     }
 
+    // method update akun manager
     public void updateAkunManager(String usernameBaru, String passwordBaru) {
         List<String[]> list = new ArrayList<>();
         list.add(new String[]{usernameBaru, passwordBaru});
         CSVUtils.overwriteCSV(FILE_MANAGER, list);
-        System.out.println("✅ Akun manager berhasil diupdate");
+        System.out.println("Akun manager berhasil diupdate");
     }
 
+    // method daftar akun pegawai
     public boolean daftarAkunPegawai(String idPegawai, String username, String password) {
+        // cek validasi id
         if (!isIdPegawaiValid(idPegawai)) {
-            System.out.println("❌ ID Pegawai tidak ditemukan. Minta ID dari Manager.");
+            System.out.println("ID Pegawai tidak ditemukan. Minta ID dari Manager.");
             return false;
         }
 
+        // cek id dan username sudah terpakai
         if (isAkunPegawaiTerdaftar(idPegawai)) {
-            System.out.println("❌ Akun untuk ID ini sudah terdaftar!");
+            System.out.println("Akun untuk ID ini sudah terdaftar!");
             return false;
         }
 
         if (isUsernameTerpakai(username)) {
-            System.out.println("❌ Username sudah digunakan! Coba yang lain.");
+            System.out.println("Username sudah digunakan! Coba yang lain.");
             return false;
         }
 
+        // simpan data akun baru
         CSVUtils.appendCSV(FILE_PEGAWAI, idPegawai, username, password);
-        System.out.println("✅ Akun berhasil dibuat! Silakan login.");
+        System.out.println("Akun berhasil dibuat! Silakan login.");
         return true;
     }
 
+    // method login pegawai
     public Akun loginPegawai(String username, String password) {
         for (String[] row : CSVUtils.readCSV(FILE_PEGAWAI)) {
             if (row[1].equals(username) && row[2].equals(password)) {
@@ -96,6 +104,7 @@ public class AuthService {
         return null; 
     }
 
+    // method tambah data pegawai
     public void tambahPegawai() {
         System.out.println("Pilih Role:");
         System.out.println("1. Pelayan");
@@ -113,10 +122,11 @@ public class AuthService {
         };
 
         if (role == null) {
-            System.out.println("❌ Pilihan role tidak valid");
+            System.out.println("Pilihan role tidak valid");
             return;
         }
 
+        // generate id pegawai
         String id = generateIdPegawai(role);
         
         System.out.print("Nama: ");
@@ -126,30 +136,36 @@ public class AuthService {
         System.out.print("No HP: ");
         String hp = scanner.nextLine();
 
+        // simpan data pegawai
         CSVUtils.appendCSV(FILE_DATA_PEGAWAI, id, role.name(), nama, email, hp);
-        System.out.println("✅ Pegawai berhasil ditambahkan dengan ID: " + id);
+        System.out.println("Pegawai berhasil ditambahkan dengan ID: " + id);
     }
 
+    // method lihat data pegawai
     public void lihatDataPegawai() {
         System.out.println("\n=== DATA PEGAWAI ===");
 
+        // baca data dari csv
         List<String[]> data = CSVUtils.readCSV(FILE_DATA_PEGAWAI);
 
         if (data.isEmpty()) {
-            System.out.println("Belum ada data pegawai.");
+            System.out.println("Belum ada data pegawai."); // data kosong
             return;
         }
 
+        // print header
         System.out.printf("%-10s %-12s %-20s %-20s %-15s\n",
                 "ID", "ROLE", "NAMA", "EMAIL", "NO HP");
         System.out.println("--------------------------------------------------------------------------");
 
+        // print data
         for (String[] row : data) {
             System.out.printf("%-10s %-12s %-20s %-20s %-15s\n",
                     row[0], row[1], row[2], row[3], row[4]);
         }
     }
 
+    // validasi id pegawai
     private boolean isIdPegawaiValid(String idPegawai) {
         for (String[] row : CSVUtils.readCSV(FILE_DATA_PEGAWAI)) {
             if (row[0].equals(idPegawai)) {
@@ -159,6 +175,7 @@ public class AuthService {
         return false;
     }
 
+    // cek akun pegawai sudah terdaftar
     private boolean isAkunPegawaiTerdaftar(String idPegawai) {
         for (String[] row : CSVUtils.readCSV(FILE_PEGAWAI)) {
             if (row[0].equals(idPegawai)) {
@@ -168,6 +185,7 @@ public class AuthService {
         return false;
     }
 
+    // cek username sudah terpakai
     private boolean isUsernameTerpakai(String username) {
         for (String[] row : CSVUtils.readCSV(FILE_PEGAWAI)) {
             if (row[1].equals(username)) {
@@ -177,6 +195,7 @@ public class AuthService {
         return false;
     }
 
+    // generate id pegawai baru
     private String generateIdPegawai(RolePegawai role) {
         int max = 0;
         for (String[] row : CSVUtils.readCSV(FILE_DATA_PEGAWAI)) {
@@ -189,9 +208,11 @@ public class AuthService {
                 }
             }
         }
+        // return id dengan format ROLE_XX
         return role.getKode() + "_" + String.format("%02d", max + 1);
     }
 
+    // dapatkan role dari id pegawai
     public String getRoleFromId(String idPegawai) {
         if (idPegawai.startsWith("PEL")) return "PELAYAN";
         else if (idPegawai.startsWith("KOK")) return "KOKI";

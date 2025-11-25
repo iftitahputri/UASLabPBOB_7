@@ -12,15 +12,18 @@ import models.menu.Makanan;
 import models.menu.MenuItem;
 import models.menu.Minuman;
 
+// class untuk service menu
 public class MenuService {
     private List<MenuItem> daftarMenu;
-    private static final String FILE_MENU = "menu.csv";
+    private static final String FILE_MENU = "menu.csv"; // disimpan di menu.csv
 
+    // constructor
     public MenuService() {
         this.daftarMenu = new ArrayList<>();
         loadData();
     }
 
+    // load data dari csv
     private void loadData() {
         loadMenuFromCSV();
 
@@ -32,6 +35,7 @@ public class MenuService {
         }
     }
 
+    // method load menu dari csv
     private void loadMenuFromCSV() {
         daftarMenu.clear(); 
 
