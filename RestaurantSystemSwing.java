@@ -1277,7 +1277,8 @@ public class RestaurantSystemSwing extends JFrame {
         if (pesananTerpilih == null) return;
 
         tableModelPOS.setRowCount(0);
-        NumberFormat fmt = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+        Locale indonesia = Locale.forLanguageTag("id-ID"); 
+        NumberFormat fmt = NumberFormat.getCurrencyInstance(indonesia);
 
         for (DetailPesanan dp : pesananTerpilih.getDetailPesanan()) {
             MenuItem item = dp.getItem();
@@ -1310,8 +1311,9 @@ public class RestaurantSystemSwing extends JFrame {
 
             double uang = Double.parseDouble(input);
             double total = pesananTerpilih.hitungTotal();
-
-            NumberFormat fmt = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+            Locale indonesia = Locale.forLanguageTag("id-ID"); 
+        
+            NumberFormat fmt = NumberFormat.getCurrencyInstance(indonesia);
             double kembali = uang - total;
             lblKembalianPOS.setText(fmt.format(kembali));
 
@@ -1337,13 +1339,15 @@ public class RestaurantSystemSwing extends JFrame {
      */
     private void tampilkanStrukReal(Pesanan pesanan, String metode, double uangDiterima, double kembalian) {
         StringBuilder struk = new StringBuilder();
-
+        
+        
         // Format Tanggal Waktu
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
         java.time.format.DateTimeFormatter formatter = 
-            java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         String tanggal = now.format(formatter);
-        NumberFormat fmt = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+        Locale indonesia = Locale.forLanguageTag("id-ID"); 
+        NumberFormat fmt = NumberFormat.getCurrencyInstance(indonesia);
 
         // --- Header Struk ---
         struk.append("==========================================\n");
